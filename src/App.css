@@ -1,4 +1,4 @@
-/* === RESET === */
+/* === RESET & GLOBAL === */
 html, body {
   margin: 0;
   padding: 0;
@@ -9,7 +9,6 @@ html, body {
   overflow-x: hidden;
 }
 
-/* === CONTENEDOR GENERAL === */
 .app {
   display: flex;
   flex-direction: column;
@@ -21,6 +20,7 @@ html, body {
   box-sizing: border-box;
 }
 
+/* === TÍTULOS === */
 h1 {
   font-size: 3rem;
   font-weight: 800;
@@ -33,16 +33,18 @@ h1 {
   opacity: 0.8;
 }
 
-/* === GRID DE 3 ÁREAS CENTRADAS === */
+/* === GRID LAYOUT === */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 600px 1fr; /* 💥 COLUMNA CENTRAL ANCLADA */
+  grid-template-columns: 300px auto 300px;
   grid-template-areas: "stats esfera botones";
   align-items: start;
-  gap: 2rem;
+  gap: 3rem;
   margin-top: 2rem;
   width: 100%;
+  max-width: 1100px;
 }
+
 .stats-box {
   grid-area: stats;
   display: flex;
@@ -54,7 +56,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateX(50px); /* 🔥 antes estaba en 30px → ahora 50px para 2 cm más */
+  transform: translateX(60px); /* ajuste óptico final */
 }
 
 .actions-box {
@@ -84,7 +86,7 @@ h1 {
   white-space: nowrap;
 }
 
-/* === BOTONES E INPUT === */
+/* === BOTONES & INPUTS === */
 button {
   background-color: #111;
   color: white;
@@ -110,7 +112,7 @@ input {
   margin-bottom: 0.5rem;
 }
 
-/* === FRAGMENTOS === */
+/* === FRAGMENTOS DEL USUARIO === */
 .fragment-list {
   display: flex;
   justify-content: center;
@@ -141,6 +143,8 @@ img {
   border-radius: 8px;
   margin-top: 0.5rem;
 }
+
+/* === RESPONSIVE MOVIL === */
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -160,11 +164,12 @@ img {
   }
 
   .esfera-box {
-    transform: none; /* ❌ quitamos el desplazamiento óptico en móvil */
+    transform: none;
   }
 
   .fragment-list {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
     padding: 0;
   }
 }

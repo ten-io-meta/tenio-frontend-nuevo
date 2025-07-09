@@ -1,9 +1,13 @@
-// src/components/EsferaFragmento.jsx
 import React from "react";
 
 const EsferaFragmento = () => {
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      marginTop: "2rem"
+    }}>
       <video
         src="https://gateway.pinata.cloud/ipfs/bafybeibq66a3jmbyo6ztsoldu3aqy35sjpznqgvliysozer3brrup7ixeq"
         autoPlay
@@ -11,14 +15,14 @@ const EsferaFragmento = () => {
         muted
         playsInline
         style={{
-          width: "300px",
-          height: "300px",
+          width: "260px",
+          height: "260px",
           borderRadius: "50%",
           objectFit: "cover",
-          boxShadow: "0 0 40px #ffffff20"
+          boxShadow: "0 0 60px rgba(255, 255, 255, 0.2)"
         }}
       />
-      <p style={{ textAlign: "center", marginTop: "0.5rem", color: "white" }}>
+      <p style={{ marginTop: "0.5rem", textAlign: "center" }}>
         Fragmento: Crack in the Silence
       </p>
     </div>
