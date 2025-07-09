@@ -1,44 +1,170 @@
-/* App.css */
-body, html {
+/* === RESET === */
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
   background-color: #000;
   color: white;
-  font-family: Arial, sans-serif;
-  height: 100%;
-  width: 100%;
+  font-family: 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
-#root {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
+/* === CONTENEDOR GENERAL === */
 .app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 800px;
-  width: 100%;
+  text-align: center;
+  min-height: 100vh;
   padding: 2rem;
+  width: 100%;
   box-sizing: border-box;
 }
 
+h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.wallet {
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+/* === GRID DE 3 ÁREAS CENTRADAS === */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 600px 1fr; /* 💥 COLUMNA CENTRAL ANCLADA */
+  grid-template-areas: "stats esfera botones";
+  align-items: start;
+  gap: 2rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+.stats-box {
+  grid-area: stats;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.esfera-box {
+  grid-area: esfera;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(50px); /* 🔥 antes estaba en 30px → ahora 50px para 2 cm más */
+}
+
+.actions-box {
+  grid-area: botones;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* === ESTADÍSTICAS === */
+.stats-column {
+  background-color: #111;
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.stat-item {
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* === BOTONES E INPUT === */
+button {
+  background-color: #111;
+  color: white;
+  border: 1px solid white;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: #333;
+}
+
+input {
+  background-color: #111;
+  color: white;
+  border: 1px solid white;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* === FRAGMENTOS === */
 .fragment-list {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .fragment-card {
-  border: 1px solid white;
-  padding: 1rem;
-  width: 200px;
   background-color: #111;
+  border: 1px solid white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s ease;
+  width: 250px;
+  box-shadow: 0 0 8px rgba(255,255,255,0.1);
+}
+
+.fragment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 12px rgba(255,255,255,0.2);
+}
+
+img {
+  max-width: 100%;
   border-radius: 8px;
+  margin-top: 0.5rem;
+}
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stats"
+      "esfera"
+      "botones";
+    justify-items: center;
+    gap: 2rem;
+  }
+
+  .stats-box,
+  .esfera-box,
+  .actions-box {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .esfera-box {
+    transform: none; /* ❌ quitamos el desplazamiento óptico en móvil */
+  }
+
+  .fragment-list {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
 }

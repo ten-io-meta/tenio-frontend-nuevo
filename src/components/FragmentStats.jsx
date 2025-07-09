@@ -1,53 +1,54 @@
 import React, { useEffect, useState } from "react";
 
-const FragmentStats = ({ contractInstance, account }) => {
-  const [ownedFragments, setOwnedFragments] = useState(0);
-  const [burnedFragments, setBurnedFragments] = useState(0);
-  const [mintedFragments, setMintedFragments] = useState(0);
-  const [liveFragments, setLiveFragments] = useState(0);
-  const [remainingToMint, setRemainingToMint] = useState(0);
+function FragmentStats({ contractInstance, account }) {
+  const [burned, setBurned] = useState(0);
+  const [held, setHeld] = useState(0);
+  const [userCount, setUserCount] = useState(0);
+  const [remaining, setRemaining] = useState(1000); // basado en supply = 1000
 
   useEffect(() => {
-    async function fetchData() {
-      if (window.ethereum && contractInstance && account) {
-        let burned = 0;
-        let owned = 0;
+    async function fetchStats() {
+      if (!contractInstance || !account) return;
 
-        const minted = await contractInstance.tokenIds();
-        const mintedNumber = parseInt(minted.toString());
+      try {
+        const supplyBN = await contractInstance.tokenIds();
+        const minted = Number(supplyBN);
 
-        for (let i = 1; i <= mintedNumber; i++) {
+        let userOwned = 0;
+        let burnedCount = 0;
+
+        for (let i = 1; i <= minted; i++) {
           try {
             const owner = await contractInstance.ownerOf(i);
             if (owner.toLowerCase() === account.toLowerCase()) {
-              owned++;
+              userOwned++;
             }
           } catch (error) {
-            burned++;
+            burnedCount++; // token no existe → quemado
           }
         }
 
-        setMintedFragments(mintedNumber);
-        setOwnedFragments(owned);
-        setBurnedFragments(burned);
-        setLiveFragments(mintedNumber - burned);
-        setRemainingToMint(1000 - mintedNumber);
+        setUserCount(userOwned);
+        setBurned(burnedCount);
+        setHeld(minted - burnedCount);
+        setRemaining(1000 - minted);
+      } catch (err) {
+        console.error("Error obteniendo stats:", err);
       }
     }
 
-    fetchData();
+    fetchStats();
   }, [contractInstance, account]);
 
   return (
-    <div style={{ background: "#222", padding: "1.5rem", borderRadius: "12px", marginBottom: "2rem" }}>
-      <h2>📊 Estado global de los fragmentos</h2>
-      <p>🔢 Total Supply: <strong>1000</strong></p>
-      <p>🧿 Tus fragmentos vivos: <strong>{ownedFragments}</strong></p>
-      <p>⚰️ Fragmentos quemados: <strong>{burnedFragments}</strong></p>
-      <p>💠 Fragmentos vivos en manos de usuarios: <strong>{liveFragments}</strong></p>
-      <p>🪙 Fragmentos aún no emitidos: <strong>{remainingToMint}</strong></p>
+    <div className="stats-column">
+      <span>🧱 Total Supply: <strong>1000</strong></span>
+      <span>🟣 Vivos tuyos: <strong>{userCount}</strong></span>
+      <span>⚰️ Quemados: <strong>{burned}</strong></span>
+      <span>💎 En manos: <strong>{held}</strong></span>
+      <span>📭 No emitidos: <strong>{remaining}</strong></span>
     </div>
   );
-};
+}
 
 export default FragmentStats;

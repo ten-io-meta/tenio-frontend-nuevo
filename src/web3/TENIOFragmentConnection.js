@@ -15,7 +15,7 @@ export async function mintFragment() {
   const signer = await provider.getSigner();
   const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
   const tx = await contract.mintFragment(
-    "https://ipfs.io/ipfs/bafkreidacdfc6dk3pwrsi7sgjd7wcacbsjvla4zbewdp54tknsjeyzpfvm",
+   "https://ipfs.io/ipfs/bafkreia4nk2xnsdhfcdlxcl7er72kafe7sspeiutysgdddnjjs76wwkvdu",
     { value: ethers.parseEther("0.12") }
   );
   await tx.wait();
