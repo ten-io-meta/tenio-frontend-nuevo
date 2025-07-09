@@ -1,30 +1,17 @@
 import React from "react";
+import "./EsferaFragmento.css";
 
 const EsferaFragmento = () => {
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      marginTop: "2rem"
-    }}>
+    <div className="esfera-container">
       <video
         src="https://gateway.pinata.cloud/ipfs/bafybeibq66a3jmbyo6ztsoldu3aqy35sjpznqgvliysozer3brrup7ixeq"
-        autoPlay
+        controls
         loop
-        muted
         playsInline
-        style={{
-          width: "260px",
-          height: "260px",
-          borderRadius: "50%",
-          objectFit: "cover",
-          boxShadow: "0 0 60px rgba(255, 255, 255, 0.2)"
-        }}
+        className="esfera-video"
       />
-      <p style={{ marginTop: "0.5rem", textAlign: "center" }}>
-        Fragmento: Crack in the Silence
-      </p>
+      <p>Fragmento: Crack in the Silence</p>
     </div>
   );
 };

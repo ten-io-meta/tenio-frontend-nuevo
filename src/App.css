@@ -1,175 +1,171 @@
-/* === RESET & GLOBAL === */
-html, body {
+/* Estilo base */
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
   background-color: #000;
-  color: white;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  overflow-x: hidden;
+  color: #fff;
 }
 
-.app {
+/* Contenedor principal */
+main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  min-height: 100vh;
   padding: 2rem;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-/* === TÍTULOS === */
+/* Título principal */
 h1 {
-  font-size: 3rem;
-  font-weight: 800;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
   margin-bottom: 0.5rem;
 }
 
-.wallet {
-  font-size: 0.95rem;
+h2 {
+  font-size: 1.1rem;
+  font-weight: normal;
+  color: #bbb;
   margin-bottom: 2rem;
-  opacity: 0.8;
+  text-align: center;
 }
 
-/* === GRID LAYOUT === */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 300px auto 300px;
-  grid-template-areas: "stats esfera botones";
-  align-items: start;
-  gap: 3rem;
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 1100px;
-}
-
+/* Caja de estadísticas */
 .stats-box {
-  grid-area: stats;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.esfera-box {
-  grid-area: esfera;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: translateX(60px); /* ajuste óptico final */
-}
-
-.actions-box {
-  grid-area: botones;
-  display: flex;
-  justify-content: flex-start;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* === ESTADÍSTICAS === */
-.stats-column {
-  background-color: #111;
+  background-color: #1e1e1e;
   padding: 1.2rem 1.5rem;
-  border-radius: 16px;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 15px #111;
+  max-width: 400px;
+  width: 100%;
+}
+
+.stats-box h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-box p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Contenedor de fragmento (esfera + botones) */
+.fragmento-contenedor {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+/* Esfera (vídeo circular) */
+.esfera-video {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 50px #000;
+}
+
+/* Botones */
+.buttons-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.7rem;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  gap: 0.8rem;
+  align-items: center;
 }
 
-.stat-item {
-  font-size: 1rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-/* === BOTONES & INPUTS === */
 button {
-  background-color: #111;
-  color: white;
-  border: 1px solid white;
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  background-color: #1a1a1a;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: 0.2s ease;
 }
 
 button:hover {
   background-color: #333;
 }
 
-input {
-  background-color: #111;
-  color: white;
-  border: 1px solid white;
+/* Input */
+input[type="text"] {
+  padding: 0.5rem;
   border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  width: 180px;
+  text-align: center;
 }
 
-/* === FRAGMENTOS DEL USUARIO === */
-.fragment-list {
+/* Título de sección de fragmentos */
+h3.tus-fragmentos {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Tarjetas de fragmentos */
+.fragmentos-grid {
   display: flex;
-  justify-content: center;
+  gap: 1rem;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-top: 2rem;
-  width: 100%;
+  justify-content: center;
 }
 
 .fragment-card {
   background-color: #111;
-  border: 1px solid white;
-  border-radius: 12px;
+  border: 1px solid #333;
+  border-radius: 10px;
   padding: 1rem;
+  width: 160px;
   text-align: center;
-  transition: transform 0.2s ease;
-  width: 250px;
-  box-shadow: 0 0 8px rgba(255,255,255,0.1);
+  box-shadow: 0 0 10px #000;
 }
 
-.fragment-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 12px rgba(255,255,255,0.2);
-}
-
-img {
-  max-width: 100%;
-  border-radius: 8px;
+.fragment-card img {
+  width: 100%;
   margin-top: 0.5rem;
+  border-radius: 8px;
 }
 
-/* === RESPONSIVE MOVIL === */
+/* Responsive */
 @media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "stats"
-      "esfera"
-      "botones";
-    justify-items: center;
-    gap: 2rem;
-  }
-
-  .stats-box,
-  .esfera-box,
-  .actions-box {
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .esfera-box {
-    transform: none;
-  }
-
-  .fragment-list {
+  .fragmento-contenedor {
     flex-direction: column;
-    align-items: center;
-    padding: 0;
+  }
+
+  .esfera-video {
+    width: 220px;
+    height: 220px;
+  }
+
+  .stats-box {
+    max-width: 90%;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 0.95rem;
+  }
+
+  .buttons-container button {
+    width: 180px;
   }
 }
