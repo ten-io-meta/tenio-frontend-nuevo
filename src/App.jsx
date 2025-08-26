@@ -18,6 +18,12 @@ import {
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
 
+// 🔧 conversor de ipfs:// a https://ipfs.io/ipfs/
+function ipfsToHttp(url) {
+  if (!url) return "";
+  return url.replace("ipfs://", "https://ipfs.io/ipfs/");
+}
+
 export default function App() {
   const [connected, setConnected] = useState(false);
   const [account, setAccount] = useState("");
@@ -49,7 +55,10 @@ export default function App() {
   const [withdrawPartialAmt, setWithdrawPartialAmt] = useState("");
 
   useEffect(() => {
-    (async () => setVideoUrl(await getHeroVideoHttp()))();
+    (async () => {
+      const rawUrl = await getHeroVideoHttp();
+      setVideoUrl(ipfsToHttp(rawUrl)); // 👈 conversión aquí
+    })();
   }, []);
 
   useEffect(() => {
@@ -117,7 +126,6 @@ export default function App() {
   const handleUseSepolia = () => setForceNet("sepolia");
   const handleUseMainnet = () => setForceNet("mainnet");
 
-  // contador visual con offset
   const nextMintNumber = useMemo(() => {
     const hist = stats?.mintedHistoric ?? 0;
     return hist + 1 + (counterOffset || 0);
@@ -198,14 +206,12 @@ export default function App() {
       </header>
 
       <main className="grid">
-        {/* IZQUIERDA: vídeo 9:16, ocupa alto completo */}
         <section className="left">
           {videoUrl ? (
             <video
               className="video"
               src={videoUrl}
               playsInline
-              /* muted */      // quítalo si quieres audio directo
               loop
               autoPlay
               controls
@@ -216,7 +222,6 @@ export default function App() {
           )}
         </section>
 
-        {/* DERECHA: panel con scroll interno */}
         <section className="right">
           <div className="connection">
             <span className={connected ? "dot ok" : "dot off"} />
