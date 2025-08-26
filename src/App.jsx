@@ -18,10 +18,20 @@ import {
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
 
-// 🔧 conversor de ipfs:// a https://ipfs.io/ipfs/
+/** Convierte ipfs://... -> https://ipfs.io/ipfs/...  */
 function ipfsToHttp(url) {
   if (!url) return "";
   return url.replace("ipfs://", "https://ipfs.io/ipfs/");
+}
+
+/** Deriva métricas coherentes desde on-chain */
+function deriveNumbers(s) {
+  const total = s?.maxSupply ?? 1000;
+  const burned = s?.burned ?? 0;          // tokens quemados (histórico)
+  const live = s?.supplyLive ?? 0;        // supply actual (vivos)
+  const minted = burned + live;           // minteados históricos = quemados + vivos
+  const available = total - minted;       // disponibles = total - minteados
+  return { total, burned, live, minted, available };
 }
 
 export default function App() {
@@ -57,7 +67,7 @@ export default function App() {
   useEffect(() => {
     (async () => {
       const rawUrl = await getHeroVideoHttp();
-      setVideoUrl(ipfsToHttp(rawUrl)); // 👈 conversión aquí
+      setVideoUrl(ipfsToHttp(rawUrl));
     })();
   }, []);
 
@@ -111,6 +121,8 @@ export default function App() {
     })();
   }, [activeContract, account]);
 
+  const derived = useMemo(() => deriveNumbers(stats), [stats]);
+
   const handleConnect = async () => {
     try {
       const accs = await getAccounts();
@@ -126,10 +138,10 @@ export default function App() {
   const handleUseSepolia = () => setForceNet("sepolia");
   const handleUseMainnet = () => setForceNet("mainnet");
 
+  // siguiente número visual con offset opcional
   const nextMintNumber = useMemo(() => {
-    const hist = stats?.mintedHistoric ?? 0;
-    return hist + 1 + (counterOffset || 0);
-  }, [stats, counterOffset]);
+    return derived.minted + 1 + (counterOffset || 0);
+  }, [derived.minted, counterOffset]);
 
   const handleMint = async () => {
     try {
@@ -206,6 +218,7 @@ export default function App() {
       </header>
 
       <main className="grid">
+        {/* IZQUIERDA: vídeo */}
         <section className="left">
           {videoUrl ? (
             <video
@@ -222,6 +235,7 @@ export default function App() {
           )}
         </section>
 
+        {/* DERECHA: panel */}
         <section className="right">
           <div className="connection">
             <span className={connected ? "dot ok" : "dot off"} />
@@ -237,11 +251,11 @@ export default function App() {
           </div>
 
           <div className="stats">
-            <div><b>Total:</b> {stats?.maxSupply ?? 1000}</div>
-            <div>🧮 <b>Minteados (histórico):</b> {stats?.mintedHistoric ?? 0}</div>
-            <div>🥓 <b>Quemados:</b> {stats?.burned ?? "—"}</div>
-            <div>🟢 <b>Vivos (holders):</b> {stats?.supplyLive ?? 0}</div>
-            <div>🪙 <b>Disponibles (sin mintear):</b> {stats?.availableToMint ?? 0}</div>
+            <div><b>Total:</b> {derived.total}</div>
+            <div>🧮 <b>Minteados (histórico):</b> {derived.minted}</div>
+            <div>🥓 <b>Quemados:</b> {derived.burned}</div>
+            <div>🟢 <b>Vivos (holders):</b> {derived.live}</div>
+            <div>🪙 <b>Disponibles (sin mintear):</b> {derived.available}</div>
 
             <div className="mt8"><b>Mint:</b> {stats?.mintPrice ?? 0} ETH</div>
             <div><b>Colateral (burn):</b> {stats?.burnRefund ?? 0} ETH</div>
