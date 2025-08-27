@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { ethers } from "ethers";
+import ABI from "./web3/ABI.json";
 import {
   __env,
   getHeroVideoHttp,
@@ -18,19 +20,19 @@ import {
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
 
-/** Convierte ipfs://... -> https://ipfs.io/ipfs/...  */
+/* ipfs:// -> https://ipfs.io/ipfs/  */
 function ipfsToHttp(url) {
   if (!url) return "";
   return url.replace("ipfs://", "https://ipfs.io/ipfs/");
 }
 
-/** Deriva métricas coherentes desde on-chain */
+/* Deriva métricas coherentes desde on-chain */
 function deriveNumbers(s) {
   const total = s?.maxSupply ?? 1000;
-  const burned = s?.burned ?? 0;          // tokens quemados (histórico)
-  const live = s?.supplyLive ?? 0;        // supply actual (vivos)
-  const minted = burned + live;           // minteados históricos = quemados + vivos
-  const available = total - minted;       // disponibles = total - minteados
+  const burned = s?.burned ?? 0;     // tokens quemados (histórico)
+  const live = s?.supplyLive ?? 0;   // supply vivo actual
+  const minted = burned + live;      // minteados históricos
+  const available = total - minted;  // disponibles sin mintear
   return { total, burned, live, minted, available };
 }
 
@@ -64,13 +66,18 @@ export default function App() {
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawPartialAmt, setWithdrawPartialAmt] = useState("");
 
+  /* NUEVO: flag de owner para ocultar panel a no-owners */
+  const [isOwner, setIsOwner] = useState(false);
+
+  /* Cargar URL del vídeo (gateway) */
   useEffect(() => {
     (async () => {
-      const rawUrl = await getHeroVideoHttp();
-      setVideoUrl(ipfsToHttp(rawUrl));
+      const raw = await getHeroVideoHttp();
+      setVideoUrl(ipfsToHttp(raw));
     })();
   }, []);
 
+  /* Suscripción básica a cambios de cuenta/red */
   useEffect(() => {
     if (!hasWindowEthereum()) return;
 
@@ -92,6 +99,7 @@ export default function App() {
     };
   }, []);
 
+  /* Carga inicial cuando cambia contrato o cuenta */
   useEffect(() => {
     if (!activeContract) return;
     (async () => {
@@ -117,6 +125,52 @@ export default function App() {
       } else {
         setOwned([]);
         setOwnedError("");
+      }
+    })();
+  }, [activeContract, account]);
+
+  /* NUEVO: polling (refresca stats/owned cada 15s) */
+  useEffect(() => {
+    if (!activeContract) return;
+    let alive = true;
+
+    const tick = async () => {
+      try {
+        const s = await getStats(activeContract);
+        if (!alive) return;
+        setStats(s);
+      } catch {}
+      if (account) {
+        try {
+          const o = await getOwnedFragments(activeContract, account);
+          if (!alive) return;
+          setOwned(o);
+        } catch {}
+      }
+    };
+
+    const id = setInterval(tick, 15000);
+    tick(); // primer tiro inmediato
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [activeContract, account]);
+
+  /* NUEVO: detectar owner on-chain (Ownable.owner()) */
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!activeContract || !account || !hasWindowEthereum()) {
+          setIsOwner(false);
+          return;
+        }
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const contract = new ethers.Contract(activeContract, ABI, await provider);
+        const ownerAddr = await contract.owner(); // OpenZeppelin Ownable
+        setIsOwner(ownerAddr?.toLowerCase() === account?.toLowerCase());
+      } catch {
+        setIsOwner(false);
       }
     })();
   }, [activeContract, account]);
@@ -260,7 +314,11 @@ export default function App() {
             <div className="mt8"><b>Mint:</b> {stats?.mintPrice ?? 0} ETH</div>
             <div><b>Colateral (burn):</b> {stats?.burnRefund ?? 0} ETH</div>
             <div><b>Reserva requerida:</b> {(stats?.requiredReserveEth ?? 0).toFixed(3)} ETH</div>
-            <div><b>Excedente retirable:</b> {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH</div>
+
+            {/* NUEVO: Excedente retirable solo visible para owner */}
+            {isOwner && (
+              <div><b>Excedente retirable:</b> {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH</div>
+            )}
 
             {loadingStats && <div className="note">Cargando estadísticas…</div>}
             {statsError && <div className="warn">{statsError}</div>}
@@ -306,25 +364,28 @@ export default function App() {
             {ownedError && <div className="warn">{ownedError}</div>}
           </div>
 
-          <div className="owner">
-            <div className="owner-title">🔑 Panel de Owner</div>
-            <div className="row">
-              <button onClick={handleWithdrawAll} disabled={withdrawing}>
-                Retirar excedente (todo)
-              </button>
-              <input
-                placeholder="Monto parcial (ETH)"
-                value={withdrawPartialAmt}
-                onChange={(e) => setWithdrawPartialAmt(e.target.value)}
-              />
-              <button onClick={handleWithdrawPartial} disabled={withdrawing}>
-                Retirar parcial…
-              </button>
+          {/* NUEVO: Panel de Owner SOLO si isOwner */}
+          {isOwner && (
+            <div className="owner">
+              <div className="owner-title">🔑 Panel de Owner</div>
+              <div className="row">
+                <button onClick={handleWithdrawAll} disabled={withdrawing}>
+                  Retirar excedente (todo)
+                </button>
+                <input
+                  placeholder="Monto parcial (ETH)"
+                  value={withdrawPartialAmt}
+                  onChange={(e) => setWithdrawPartialAmt(e.target.value)}
+                />
+                <button onClick={handleWithdrawPartial} disabled={withdrawing}>
+                  Retirar parcial…
+                </button>
+              </div>
+              <div className="muted">
+                Excedente disponible: {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH
+              </div>
             </div>
-            <div className="muted">
-              Excedente disponible: {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH
-            </div>
-          </div>
+          )}
         </section>
       </main>
     </div>
