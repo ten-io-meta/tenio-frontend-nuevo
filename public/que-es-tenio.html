@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¿Qué es TEN.IO?</title>
+  <meta name="description" content="TEN.IO — Arquitectura vectorial construida sobre Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro total finito." />
+  <link rel="icon" href="/vite.svg" />
+  <style>
+    :root{
+      --bg-0:#0b0e11; --bg-1:#0f1320; --ink:#e8eefc; --muted:#a5b1c2;
+      --acc:#6aa9ff; --acc-2:#9b7dff; --ok:#34d399; --line:#1e2636;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
+      color:var(--ink); background:
+        radial-gradient(1200px 700px at 70% -10%, #17233c 0%, transparent 60%),
+        radial-gradient(900px 600px at -10% 30%, #171c2e 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1));
+      letter-spacing:.1px;
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:72px 20px 96px}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:30px}
+    .brand{font-weight:700;opacity:.9;letter-spacing:.18em;text-transform:uppercase}
+    .lang{
+      display:flex; gap:6px; background:#0e1524; border:1px solid #1b2540; border-radius:10px; padding:6px;
+    }
+    .lang button{
+      background:transparent; border:none; color:var(--muted); padding:8px 12px; border-radius:8px; cursor:pointer;
+    }
+    .lang button.active{color:var(--ink); background:#17213b}
+    h1{
+      font-size: clamp(28px, 5vw, 44px); line-height:1.15;
+      margin:28px 0 16px; font-weight:800; letter-spacing:.02em;
+      text-shadow: 0 0 24px rgba(106,169,255,.12);
+    }
+    p{color:var(--ink); opacity:.92; line-height:1.7; font-size:18px; margin:0 0 16px}
+    .muted{color:var(--muted)}
+    .block{
+      border:1px solid var(--line); border-radius:16px; padding:22px 18px; background:rgba(18,22,34,.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.02), 0 6px 28px rgba(10,14,30,.25);
+      margin:18px 0; overflow:hidden;
+    }
+    .block h3{margin:0 0 10px; font-size:18px; font-weight:700; letter-spacing:.02em}
+    .hero{
+      margin:24px 0 10px; border:1px solid var(--line); border-radius:18px; padding:28px 22px;
+      background:linear-gradient(180deg, rgba(30,40,72,.35), rgba(18,22,34,.55));
+    }
+    .cta{
+      display:flex; gap:14px; flex-wrap:wrap; margin-top:18px
+    }
+    .btn{
+      appearance:none; border:none; cursor:pointer; padding:13px 18px; border-radius:12px; font-weight:700; letter-spacing:.01em;
+      color:#071019; background:linear-gradient(90deg, var(--acc), var(--acc-2)); box-shadow:0 8px 30px rgba(107,143,255,.25);
+    }
+    .btn.secondary{
+      background:#121a2e; color:var(--ink); border:1px solid #213054;
+    }
+    .note{font-size:14px;color:var(--muted)}
+    footer{
+      margin-top:50px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); text-align:center; font-size:14px
+    }
+    /* reveal */
+    .reveal{opacity:0; transform:translateY(10px); transition:opacity .6s ease, transform .6s ease}
+    .reveal.show{opacity:1; transform:none}
+    @media (max-width:640px){ .cta{flex-direction:column} }
+    code.k{padding:.1em .45em;border-radius:6px;background:#0e1524;border:1px solid #1b2540;color:#b6c8ff}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">TEN.IO</div>
+      <div class="lang" role="tablist" aria-label="Language">
+        <button id="btn-es" class="active" aria-selected="true">ES</button>
+        <button id="btn-en" aria-selected="false">EN</button>
+      </div>
+    </div>
+
+    <header class="hero reveal">
+      <h1 id="t1">¿Qué es TEN.IO?</h1>
+      <p id="lead">
+        TEN.IO no es una red ni una capa sobre Ethereum. Es una <b>arquitectura vectorial</b> que utiliza la blockchain
+        de Ethereum como base y memoria. Cada fragmento del sistema vive en un contrato inteligente <b>ERC-721-DT</b>,
+        donde <i>música</i>, <i>audiovisual</i> y <i>lógica</i> quedan unidos dentro de un mismo token.
+      </p>
+      <div class="cta">
+        <a class="btn" href="/" id="mint">Mint Fragment</a>
+        <a class="btn secondary" href="#s-economia" id="learn">Aprender más</a>
+      </div>
+      <div class="note" id="note-mint">El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.</div>
+    </header>
+
+    <section class="block reveal" id="s-arquitectura">
+      <h3 id="s1">Arquitectura y narrativa</h3>
+      <p id="s1p1">
+        A diferencia de una L2 o una sidechain, TEN.IO no se ejecuta fuera de Ethereum, sino <b>dentro de su propio
+        espacio narrativo</b>. Cada fragmento funciona como un nodo que se sincroniza con el resto a través del tiempo
+        y la tensión, no de la atención.
+      </p>
+      <p id="s1p2">
+        En lo visual, TEN.IO se expresa como una secuencia de videoclips, cada uno con universo, personajes y fórmulas.
+        En lo técnico, cada fragmento es un contrato autónomo con su <b>propio suministro</b>, <b>colateral</b> y
+        <b>dinámica de quema</b>.
+      </p>
+    </section>
+
+    <section class="block reveal" id="s-supply">
+      <h3 id="s2">Saga y suministro</h3>
+      <p id="s2p1">
+        La saga consta de <b>101 capítulos</b>. Cada capítulo tiene <b>1.000 fragmentos</b>. El
+        <b>suministro total</b> del sistema es <b>101.000 fragmentos</b>, distribuidos de forma programada en ~10 años.
+      </p>
+      <p id="s2p2">
+        El Capítulo 0 —<i>El Umbral</i>— tiene un precio base <b>10× menor</b> que el de los capítulos estándar
+        (que parten de <code class="k">0.10 ETH</code>). Es la puerta de entrada: poseer un fragmento abre camino al resto.
+      </p>
+    </section>
+
+    <section class="block reveal" id="s-economia">
+      <h3 id="s3">Valor embebido y quema autocustodia</h3>
+      <p id="s3p1">
+        Cada token contiene un <b>valor mínimo embebido en ETH</b>. Ese valor no depende de listados ni de terceros:
+        el holder puede <b>quemar</b> su fragmento directamente desde su wallet (autocustodia) y recuperar el colateral
+        definido por el contrato, sin esperar a que “alguien lo compre”.
+      </p>
+      <p id="s3p2">
+        La quema retira el token del mercado <i>para siempre</i>, reduciendo el suministro del capítulo y
+        <b>aumentando su escasez</b>. Con el tiempo, el conjunto de fragmentos sobrevivientes concentra la tensión,
+        y el valor de la obra no se apoya en hype sino en su <b>mecánica interna</b>.
+      </p>
+    </section>
+
+    <section class="block reveal" id="s-industria">
+      <h3 id="s4">¿Qué cambia en el NFT?</h3>
+      <p id="s4p1">
+        El mercado deja de ser el árbitro del valor mínimo. El holder se convierte en su propio mercado: puede
+        <b>mantener</b>, <b>vender</b> o <b>quemar</b> con liquidez programada. La economía no gira en torno a listados,
+        sino a <b>decisiones cripto-nativas</b> tomadas por quienes sostienen la obra.
+      </p>
+      <p id="s4p2">
+        Esto desplaza el foco: del ruido al <b>ritmo de suministro</b>, del trending a la <b>escasez irreversible</b>,
+        del flip a la <b>tensión narrativa</b>. TEN.IO no pide atención: la comprime.
+      </p>
+    </section>
+
+    <section class="block reveal" id="s-participar">
+      <h3 id="s5">Cómo participar</h3>
+      <p id="s5p1">
+        1) Conecta tu wallet. 2) Mintea un fragmento. 3) Decide: mantenerlo, venderlo o quemarlo. No hay lanzamientos
+        masivos; hay <b>provisión dosificada</b>. El valor mínimo está en el contrato; la tensión, en tus manos.
+      </p>
+      <div class="cta">
+        <a class="btn" href="/" id="mint2">Mint Fragment</a>
+        <a class="btn secondary" href="/" id="openapp">Abrir dApp</a>
+      </div>
+    </section>
+
+    <footer class="reveal" id="foot">TEN.IO System ∴ Construido sobre Ethereum</footer>
+  </div>
+
+  <script>
+    // Diccionario de textos ES/EN
+    const T = {
+      es: {
+        t1:"¿Qué es TEN.IO?",
+        lead:"TEN.IO no es una red ni una capa sobre Ethereum. Es una arquitectura vectorial que utiliza la blockchain de Ethereum como base y memoria. Cada fragmento del sistema vive en un contrato inteligente ERC-721-DT, donde música, audiovisual y lógica quedan unidos dentro de un mismo token.",
+        mint:"Mint Fragment",
+        learn:"Aprender más",
+        noteMint:"El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.",
+        s1:"Arquitectura y narrativa",
+        s1p1:"A diferencia de una L2 o una sidechain, TEN.IO no se ejecuta fuera de Ethereum, sino dentro de su propio espacio narrativo. Cada fragmento funciona como un nodo que se sincroniza con el resto a través del tiempo y la tensión, no de la atención.",
+        s1p2:"En lo visual, TEN.IO se expresa como una secuencia de videoclips, cada uno con universo, personajes y fórmulas. En lo técnico, cada fragmento es un contrato autónomo con su propio suministro, colateral y dinámica de quema.",
+        s2:"Saga y suministro",
+        s2p1:"La saga consta de 101 capítulos. Cada capítulo tiene 1.000 fragmentos. El suministro total del sistema es 101.000 fragmentos, distribuidos de forma programada en ~10 años.",
+        s2p2:"El Capítulo 0 —El Umbral— tiene un precio base 10× menor que el de los capítulos estándar (que parten de 0.10 ETH). Es la puerta de entrada: poseer un fragmento abre camino al resto.",
+        s3:"Valor embebido y quema autocustodia",
+        s3p1:"Cada token contiene un valor mínimo embebido en ETH. Ese valor no depende de listados ni de terceros: el holder puede quemar su fragmento directamente desde su wallet (autocustodia) y recuperar el colateral definido por el contrato, sin esperar a que “alguien lo compre”.",
+        s3p2:"La quema retira el token del mercado para siempre, reduciendo el suministro del capítulo y aumentando su escasez. Con el tiempo, el conjunto de fragmentos sobrevivientes concentra la tensión, y el valor de la obra no se apoya en hype sino en su mecánica interna.",
+        s4:"¿Qué cambia en el NFT?",
+        s4p1:"El mercado deja de ser el árbitro del valor mínimo. El holder se convierte en su propio mercado: puede mantener, vender o quemar con liquidez programada. La economía no gira en torno a listados, sino a decisiones cripto-nativas tomadas por quienes sostienen la obra.",
+        s4p2:"Esto desplaza el foco: del ruido al ritmo de suministro, del trending a la escasez irreversible, del flip a la tensión narrativa. TEN.IO no pide atención: la comprime.",
+        s5:"Cómo participar",
+        s5p1:"1) Conecta tu wallet. 2) Mintea un fragmento. 3) Decide: mantenerlo, venderlo o quemarlo. No hay lanzamientos masivos; hay provisión dosificada. El valor mínimo está en el contrato; la tensión, en tus manos.",
+        openapp:"Abrir dApp",
+        foot:"TEN.IO System ∴ Construido sobre Ethereum"
+      },
+      en: {
+        t1:"What is TEN.IO?",
+        lead:"TEN.IO is neither a network nor a layer on Ethereum. It is a vectorial architecture built on Ethereum, where each fragment lives in an ERC-721-DT smart contract that binds music, moving image and logic inside a single token.",
+        mint:"Mint Fragment",
+        learn:"Learn more",
+        noteMint:"Button opens the dApp. From there you can connect your wallet and switch networks.",
+        s1:"Architecture & Narrative",
+        s1p1:"Unlike an L2 or sidechain, TEN.IO does not run outside Ethereum. It unfolds inside its own narrative space. Each fragment behaves as a node that synchronizes with the whole through time and tension—not attention.",
+        s1p2:"Visually, TEN.IO appears as a sequence of videos, each with its own universe, characters and formulas. Technically, each fragment is an autonomous contract with its own supply, collateral and burn dynamics.",
+        s2:"Saga & Supply",
+        s2p1:"The saga comprises 101 chapters. Each chapter has 1,000 fragments. Total supply is 101,000 fragments, programmatically released over ~10 years.",
+        s2p2:"Chapter 0 —The Threshold— has a base price 10× lower than standard chapters (which start at 0.10 ETH). Owning one opens the path to the rest.",
+        s3:"Embedded Value & Self-custodial Burn",
+        s3p1:"Every token embeds a minimum ETH value. That floor does not rely on listings or third parties: the holder can burn directly from their wallet and redeem the contract-defined collateral—no buyer required.",
+        s3p2:"Burning removes the token from the market forever, reducing chapter supply and increasing scarcity. Over time, the surviving fragments concentrate tension, and value accrues from the mechanism itself rather than hype.",
+        s4:"What changes in NFTs?",
+        s4p1:"The marketplace stops arbitrating the floor. The holder becomes their own market: hold, sell or burn with programmed liquidity. The economy revolves around crypto-native decisions made by those who sustain the work.",
+        s4p2:"Focus shifts from noise to issuance rhythm, from trending to irreversible scarcity, from flipping to narrative tension. TEN.IO does not ask for attention: it compresses it.",
+        s5:"How to participate",
+        s5p1:"1) Connect your wallet. 2) Mint a fragment. 3) Decide: hold, sell or burn. No mass drops; there is paced issuance. The floor lives in the contract; tension in your hands.",
+        openapp:"Open dApp",
+        foot:"TEN.IO System ∴ Built on Ethereum"
+      }
+    };
+
+    const els = {
+      t1:document.getElementById('t1'),
+      lead:document.getElementById('lead'),
+      mint:document.getElementById('mint'),
+      learn:document.getElementById('learn'),
+      noteMint:document.getElementById('note-mint'),
+      s1:document.getElementById('s1'), s1p1:document.getElementById('s1p1'), s1p2:document.getElementById('s1p2'),
+      s2:document.getElementById('s2'), s2p1:document.getElementById('s2p1'), s2p2:document.getElementById('s2p2'),
+      s3:document.getElementById('s3'), s3p1:document.getElementById('s3p1'), s3p2:document.getElementById('s3p2'),
+      s4:document.getElementById('s4'), s4p1:document.getElementById('s4p1'), s4p2:document.getElementById('s4p2'),
+      s5:document.getElementById('s5'), s5p1:document.getElementById('s5p1'),
+      mint2:document.getElementById('mint2'), openapp:document.getElementById('openapp'), foot:document.getElementById('foot')
+    };
+
+    function setLang(k){
+      const L = T[k];
+      els.t1.textContent=L.t1; els.lead.textContent=L.lead;
+      els.mint.textContent=L.mint; els.learn.textContent=L.learn; els.noteMint.textContent=L.noteMint;
+      els.s1.textContent=L.s1; els.s1p1.textContent=L.s1p1; els.s1p2.textContent=L.s1p2;
+      els.s2.textContent=L.s2; els.s2p1.textContent=L.s2p1; els.s2p2.textContent=L.s2p2;
+      els.s3.textContent=L.s3; els.s3p1.textContent=L.s3p1; els.s3p2.textContent=L.s3p2;
+      els.s4.textContent=L.s4; els.s4p1.textContent=L.s4p1; els.s4p2.textContent=L.s4p2;
+      els.s5.textContent=L.s5; els.s5p1.textContent=L.s5p1;
+      els.mint2.textContent=L.mint; els.openapp.textContent=L.openapp; els.foot.textContent=L.foot;
+      document.documentElement.lang = k;
+      btnES.classList.toggle('active', k==='es'); btnEN.classList.toggle('active', k==='en');
+      localStorage.setItem('tenio_lang', k);
+    }
+
+    const btnES = document.getElementById('btn-es');
+    const btnEN = document.getElementById('btn-en');
+    btnES.addEventListener('click', ()=>setLang('es'));
+    btnEN.addEventListener('click', ()=>setLang('en'));
+    setLang(localStorage.getItem('tenio_lang')||'es');
+
+    // reveal on scroll
+    const io = new IntersectionObserver((entries)=>{
+      for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } }
+    }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  </script>
+</body>
+</html>
