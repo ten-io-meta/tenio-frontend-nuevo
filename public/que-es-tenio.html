@@ -3,21 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Social Preview TEN.IO -->
-<meta property="og:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
-<meta property="og:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
-<meta property="og:image" content="https://ten-io-fragments.vercel.app/og-tenio.jpg" />
-<meta property="og:url" content="https://ten-io-fragments.vercel.app/que-es-tenio.html" />
-<meta property="og:type" content="website" />
+ <!-- Social Preview TEN.IO (auto-detección ENS o Vercel) -->
+<script>
+  // Detecta el dominio actual para construir rutas absolutas correctas
+  (function() {
+    var host = window.location.hostname;
+    var baseURL = host.includes('eth.limo')
+      ? 'https://tenio.eth.limo'
+      : 'https://ten-io-fragments.vercel.app';
+    var pageURL = baseURL + '/que-es-tenio.html';
+    var imageURL = baseURL + '/og-tenio.jpg';
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
-<meta name="twitter:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
-<meta name="twitter:image" content="https://ten-io-fragments.vercel.app/og-tenio.jpg" />
-<meta name="twitter:site" content="@ten_IO_META" />
-<meta name="twitter:creator" content="@ten_IO_META" />
+    document.write(`
+      <meta property="og:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
+      <meta property="og:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
+      <meta property="og:image" content="${imageURL}" />
+      <meta property="og:url" content="${pageURL}" />
+      <meta property="og:type" content="website" />
 
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
+      <meta name="twitter:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
+      <meta name="twitter:image" content="${imageURL}" />
+      <meta name="twitter:site" content="@ten_IO_META" />
+      <meta name="twitter:creator" content="@ten_IO_META" />
+    `);
+  })();
+</script>
   <title>¿Qué es TEN.IO?</title>
   <meta name="description" content="TEN.IO — Arquitectura vectorial construida sobre Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro total finito." />
   <link rel="icon" href="/vite.svg" />
