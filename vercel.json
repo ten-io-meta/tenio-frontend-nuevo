@@ -1,4 +1,9 @@
 {
+  "version": 2,
+  "rewrites": [
+    { "source": "/app", "destination": "/" },
+    { "source": "/app/(.*)", "destination": "/" }
+  ],
   "redirects": [
     { "source": "/", "destination": "/que-es-tenio.html", "permanent": false }
   ]
