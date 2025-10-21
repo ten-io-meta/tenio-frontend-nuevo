@@ -62,7 +62,6 @@
     footer{
       margin-top:50px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); text-align:center; font-size:14px
     }
-    /* reveal */
     .reveal{opacity:0; transform:translateY(10px); transition:opacity .6s ease, transform .6s ease}
     .reveal.show{opacity:1; transform:none}
     @media (max-width:640px){ .cta{flex-direction:column} }
@@ -73,9 +72,9 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">TEN.IO</div>
-      <div class="lang" role="tablist" aria-label="Language">
-        <button id="btn-es" class="active" aria-selected="true">ES</button>
-        <button id="btn-en" aria-selected="false">EN</button>
+      <div class="lang">
+        <button id="btn-es" class="active">ES</button>
+        <button id="btn-en">EN</button>
       </div>
     </div>
 
@@ -87,7 +86,7 @@
         donde <i>música</i>, <i>audiovisual</i> y <i>lógica</i> quedan unidos dentro de un mismo token.
       </p>
       <div class="cta">
-        <a class="btn" href="/app" id="mint">Mint Fragment</a>
+        <a class="btn" href="/" id="mint">Mint Fragment</a>
         <a class="btn secondary" href="#s-economia" id="learn">Aprender más</a>
       </div>
       <div class="note" id="note-mint">El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.</div>
@@ -153,16 +152,16 @@
         masivos; hay <b>provisión dosificada</b>. El valor mínimo está en el contrato; la tensión, en tus manos.
       </p>
       <div class="cta">
-        <a class="btn" href="/app" id="mint2">Mint Fragment</a>
-<a class="btn secondary" href="/app" id="openapp">Abrir dApp</a>
+        <a class="btn" href="/" id="mint2">Mint Fragment</a>
+        <a class="btn secondary" href="/" id="openapp">Abrir dApp</a>
       </div>
     </section>
 
     <footer class="reveal" id="foot">TEN.IO System ∴ Construido sobre Ethereum</footer>
   </div>
 
+  <!-- Diccionario y traducción -->
   <script>
-    // Diccionario de textos ES/EN
     const T = {
       es: {
         t1:"¿Qué es TEN.IO?",
@@ -186,100 +185,39 @@
         s5p1:"1) Conecta tu wallet. 2) Mintea un fragmento. 3) Decide: mantenerlo, venderlo o quemarlo. No hay lanzamientos masivos; hay provisión dosificada. El valor mínimo está en el contrato; la tensión, en tus manos.",
         openapp:"Abrir dApp",
         foot:"TEN.IO System ∴ Construido sobre Ethereum"
-      },
-      en: {
-        t1:"What is TEN.IO?",
-        lead:"TEN.IO is neither a network nor a layer on Ethereum. It is a vectorial architecture built on Ethereum, where each fragment lives in an ERC-721-DT smart contract that binds music, moving image and logic inside a single token.",
-        mint:"Mint Fragment",
-        learn:"Learn more",
-        noteMint:"Button opens the dApp. From there you can connect your wallet and switch networks.",
-        s1:"Architecture & Narrative",
-        s1p1:"Unlike an L2 or sidechain, TEN.IO does not run outside Ethereum. It unfolds inside its own narrative space. Each fragment behaves as a node that synchronizes with the whole through time and tension—not attention.",
-        s1p2:"Visually, TEN.IO appears as a sequence of videos, each with its own universe, characters and formulas. Technically, each fragment is an autonomous contract with its own supply, collateral and burn dynamics.",
-        s2:"Saga & Supply",
-        s2p1:"The saga comprises 101 chapters. Each chapter has 1,000 fragments. Total supply is 101,000 fragments, programmatically released over ~10 years.",
-        s2p2:"Chapter 0 —The Threshold— has a base price 10× lower than standard chapters (which start at 0.10 ETH). Owning one opens the path to the rest.",
-        s3:"Embedded Value & Self-custodial Burn",
-        s3p1:"Every token embeds a minimum ETH value. That floor does not rely on listings or third parties: the holder can burn directly from their wallet and redeem the contract-defined collateral—no buyer required.",
-        s3p2:"Burning removes the token from the market forever, reducing chapter supply and increasing scarcity. Over time, the surviving fragments concentrate tension, and value accrues from the mechanism itself rather than hype.",
-        s4:"What changes in NFTs?",
-        s4p1:"The marketplace stops arbitrating the floor. The holder becomes their own market: hold, sell or burn with programmed liquidity. The economy revolves around crypto-native decisions made by those who sustain the work.",
-        s4p2:"Focus shifts from noise to issuance rhythm, from trending to irreversible scarcity, from flipping to narrative tension. TEN.IO does not ask for attention: it compresses it.",
-        s5:"How to participate",
-        s5p1:"1) Connect your wallet. 2) Mint a fragment. 3) Decide: hold, sell or burn. No mass drops; there is paced issuance. The floor lives in the contract; tension in your hands.",
-        openapp:"Open dApp",
-        foot:"TEN.IO System ∴ Built on Ethereum"
       }
     };
-
-    const els = {
-      t1:document.getElementById('t1'),
-      lead:document.getElementById('lead'),
-      mint:document.getElementById('mint'),
-      learn:document.getElementById('learn'),
-      noteMint:document.getElementById('note-mint'),
-      s1:document.getElementById('s1'), s1p1:document.getElementById('s1p1'), s1p2:document.getElementById('s1p2'),
-      s2:document.getElementById('s2'), s2p1:document.getElementById('s2p1'), s2p2:document.getElementById('s2p2'),
-      s3:document.getElementById('s3'), s3p1:document.getElementById('s3p1'), s3p2:document.getElementById('s3p2'),
-      s4:document.getElementById('s4'), s4p1:document.getElementById('s4p1'), s4p2:document.getElementById('s4p2'),
-      s5:document.getElementById('s5'), s5p1:document.getElementById('s5p1'),
-      mint2:document.getElementById('mint2'), openapp:document.getElementById('openapp'), foot:document.getElementById('foot')
-    };
-
-    function setLang(k){
-      const L = T[k];
-      els.t1.textContent=L.t1; els.lead.textContent=L.lead;
-      els.mint.textContent=L.mint; els.learn.textContent=L.learn; els.noteMint.textContent=L.noteMint;
-      els.s1.textContent=L.s1; els.s1p1.textContent=L.s1p1; els.s1p2.textContent=L.s1p2;
-      els.s2.textContent=L.s2; els.s2p1.textContent=L.s2p1; els.s2p2.textContent=L.s2p2;
-      els.s3.textContent=L.s3; els.s3p1.textContent=L.s3p1; els.s3p2.textContent=L.s3p2;
-      els.s4.textContent=L.s4; els.s4p1.textContent=L.s4p1; els.s4p2.textContent=L.s4p2;
-      els.s5.textContent=L.s5; els.s5p1.textContent=L.s5p1;
-      els.mint2.textContent=L.mint; els.openapp.textContent=L.openapp; els.foot.textContent=L.foot;
-      document.documentElement.lang = k;
-      btnES.classList.toggle('active', k==='es'); btnEN.classList.toggle('active', k==='en');
-      localStorage.setItem('tenio_lang', k);
-    }
-
-    const btnES = document.getElementById('btn-es');
-    const btnEN = document.getElementById('btn-en');
-    btnES.addEventListener('click', ()=>setLang('es'));
-    btnEN.addEventListener('click', ()=>setLang('en'));
-    setLang(localStorage.getItem('tenio_lang')||'es');
-
-    // reveal on scroll
-    const io = new IntersectionObserver((entries)=>{
-      for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } }
-    }, {threshold:.12});
-    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   </script>
-</body>
-</html>
-  // reveal on scroll
-  const io = new IntersectionObserver((entries)=>{
-    for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } }
-  }, {threshold:.12});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-</script>
 
-<!-- Fix: que el botón "Mint Fragment / dApp" funcione en Vercel y en eth.limo -->
-<script>
-  (function fixMintLink() {
-    var host = location.hostname;
-    var isEthLimo = /\.eth\.limo$/i.test(host);
+  <!-- reveal on scroll -->
+  <script>
+    const io = new IntersectionObserver((entries)=>{
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('show');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
 
-    // En eth.limo manda a Vercel con /app; en Vercel deja /app (lo sirve el rewrite)
-    var targetHref = isEthLimo
-      ? 'https://ten-io-fragments.vercel.app/app'
-      : '/app';
-
-    // Ajusta TODOS los botones relevantes
-    var candidates = document.querySelectorAll('a[href="/app"], a#openapp, #openapp, #mint, #mint2');
-    candidates.forEach(function (el) {
-      var a = (el.tagName === 'A') ? el : (el.closest && el.closest('a')) || null;
-      if (a && a.setAttribute) a.setAttribute('href', targetHref);
-    });
-  })();
-</script>
+  <!-- Fix: botón Mint -->
+  <script>
+    (function fixMintLink(){
+      var host = location.hostname;
+      var isEthLimo = /\.eth\.limo$/i.test(host);
+      var targetHref = isEthLimo
+        ? 'https://ten-io-fragments.vercel.app/app'
+        : '/app';
+      var candidates = document.querySelectorAll(
+        'a[href="/app"], a#openapp, #openapp, #mint, #mint2'
+      );
+      candidates.forEach(function(el){
+        var a = (el.tagName === 'A') ? el : (el.closest && el.closest('a')) || null;
+        if (a && a.setAttribute) a.setAttribute('href', targetHref);
+      });
+    })();
+  </script>
 </body>
 </html>
