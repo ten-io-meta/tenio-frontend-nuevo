@@ -87,7 +87,7 @@
         donde <i>música</i>, <i>audiovisual</i> y <i>lógica</i> quedan unidos dentro de un mismo token.
       </p>
       <div class="cta">
-        <a class="btn" href="/" id="mint">Mint Fragment</a>
+        <a class="btn" href="/app" id="mint">Mint Fragment</a>
         <a class="btn secondary" href="#s-economia" id="learn">Aprender más</a>
       </div>
       <div class="note" id="note-mint">El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.</div>
@@ -153,8 +153,8 @@
         masivos; hay <b>provisión dosificada</b>. El valor mínimo está en el contrato; la tensión, en tus manos.
       </p>
       <div class="cta">
-        <a class="btn" href="/" id="mint2">Mint Fragment</a>
-        <a class="btn secondary" href="/" id="openapp">Abrir dApp</a>
+        <a class="btn" href="/app" id="mint2">Mint Fragment</a>
+<a class="btn secondary" href="/app" id="openapp">Abrir dApp</a>
       </div>
     </section>
 
@@ -253,5 +253,33 @@
     }, {threshold:.12});
     document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   </script>
+</body>
+</html>
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } }
+  }, {threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+<!-- Fix: que el botón "Mint Fragment / dApp" funcione en Vercel y en eth.limo -->
+<script>
+  (function fixMintLink() {
+    var host = location.hostname;
+    var isEthLimo = /\.eth\.limo$/i.test(host);
+
+    // En eth.limo manda a Vercel con /app; en Vercel deja /app (lo sirve el rewrite)
+    var targetHref = isEthLimo
+      ? 'https://ten-io-fragments.vercel.app/app'
+      : '/app';
+
+    // Ajusta TODOS los botones relevantes
+    var candidates = document.querySelectorAll('a[href="/app"], a#openapp, #openapp, #mint, #mint2');
+    candidates.forEach(function (el) {
+      var a = (el.tagName === 'A') ? el : (el.closest && el.closest('a')) || null;
+      if (a && a.setAttribute) a.setAttribute('href', targetHref);
+    });
+  })();
+</script>
 </body>
 </html>
