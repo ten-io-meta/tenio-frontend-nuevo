@@ -247,4 +247,48 @@
     })();
   </script>
 </body>
-</html>
+<!-- Traducción inglés -->
+<script>
+  T.en = {
+    t1: "What is TEN.IO?",
+    lead: "TEN.IO is not a network nor a layer built on Ethereum. It is a vectorial architecture that uses the Ethereum blockchain as base and memory. Each fragment of the system lives inside an ERC-721-DT smart contract, where music, audiovisual and logic are united within a single token.",
+    mint: "Mint Fragment",
+    learn: "Learn more",
+    noteMint: "The button opens the dApp. From there you can connect your wallet and change network.",
+    s1: "Architecture and narrative",
+    s1p1: "Unlike an L2 or sidechain, TEN.IO does not run outside Ethereum, but within its own narrative space. Each fragment works as a node that syncs with the rest through time and tension — not attention.",
+    s1p2: "Visually, TEN.IO unfolds as a sequence of videoclips, each with its own universe, characters and formulas. Technically, each fragment is an autonomous contract with its own supply, collateral, and burn dynamics.",
+    s2: "Saga and supply",
+    s2p1: "The saga consists of 101 chapters. Each chapter holds 1,000 fragments. The total supply of the system is 101,000 fragments, distributed programmatically over ~10 years.",
+    s2p2: "Chapter 0 —The Threshold— has a base price 10× lower than standard chapters (which start at 0.10 ETH). It’s the entry gate: owning a fragment opens the path to the rest.",
+    s3: "Embedded value and self-custodial burn",
+    s3p1: "Each token embeds a minimum value in ETH. That value does not rely on listings or third parties: the holder can burn their fragment directly from their wallet (self-custody) and recover the collateral defined in the contract, without waiting for 'someone to buy it'.",
+    s3p2: "Burning permanently removes the token from the market, reducing the chapter’s supply and increasing its scarcity. Over time, the remaining fragments concentrate the tension, and the work’s value rests not on hype but on its internal mechanics.",
+    s4: "What changes in the NFT?",
+    s4p1: "The market stops being the arbiter of the minimum value. The holder becomes their own market: they can hold, sell, or burn with programmed liquidity. The economy revolves around crypto-native decisions made by those who sustain the work.",
+    s4p2: "This shifts the focus — from noise to the rhythm of supply, from trending to irreversible scarcity, from flipping to narrative tension. TEN.IO doesn’t ask for attention: it compresses it.",
+    s5: "How to participate",
+    s5p1: "1) Connect your wallet. 2) Mint a fragment. 3) Decide: hold it, sell it, or burn it. There are no massive launches — only gradual provision. The minimum value is on-chain; the tension, in your hands.",
+    openapp: "Open dApp",
+    foot: "TEN.IO System ∴ Built on Ethereum"
+  };
+
+  // Manejador de idioma
+  const btnEs = document.getElementById('btn-es');
+  const btnEn = document.getElementById('btn-en');
+  const applyLang = (lang) => {
+    const dict = T[lang];
+    if (!dict) return;
+    for (const [key, val] of Object.entries(dict)) {
+      const el = document.getElementById(key);
+      if (el) el.innerHTML = val;
+    }
+    btnEs.classList.toggle('active', lang === 'es');
+    btnEn.classList.toggle('active', lang === 'en');
+    localStorage.setItem('lang', lang);
+  };
+  btnEs.onclick = () => applyLang('es');
+  btnEn.onclick = () => applyLang('en');
+  applyLang(localStorage.getItem('lang') || 'es');
+</script>
+
