@@ -529,4 +529,24 @@
     })();
   </script>
 </body>
+  <script>
+    (function fixMintLink(){
+      var host = location.hostname;
+      var isEthLimo = /\.eth\.limo$/i.test(host);
+      var targetHref = isEthLimo
+        ? 'https://ten-io-fragments.vercel.app/app'
+        : '/app';
+      var candidates = document.querySelectorAll(
+        '#mint, #mint2, #mint3, a[href="/app"], #openapp'
+      );
+      candidates.forEach(function(el){
+        if (el && el.setAttribute) el.setAttribute('href', targetHref);
+      });
+    })();
+  </script>
+
+  <!-- Modal visual post-mint -->
+  <script src="/modals-tenio.js"></script>
+</body>
 </html>
+
