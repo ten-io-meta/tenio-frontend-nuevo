@@ -3,36 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
- <!-- Social Preview TEN.IO (auto-detección ENS o Vercel) -->
-<script>
-  // Detecta el dominio actual para construir rutas absolutas correctas
-  (function() {
-    var host = window.location.hostname;
-    var baseURL = host.includes('eth.limo')
-      ? 'https://tenio.eth.limo'
-      : 'https://ten-io-fragments.vercel.app';
-    var pageURL = baseURL + '/que-es-tenio.html';
-    var imageURL = baseURL + '/og-tenio.jpg';
 
-    document.write(`
-      <meta property="og:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
-      <meta property="og:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
-      <meta property="og:image" content="${imageURL}" />
-      <meta property="og:url" content="${pageURL}" />
-      <meta property="og:type" content="website" />
+  <script>
+    // Social preview dinámica según dominio
+    (function() {
+      var host = window.location.hostname;
+      var baseURL = host.includes('eth.limo')
+        ? 'https://tenio.eth.limo'
+        : 'https://ten-io-fragments.vercel.app';
+      var pageURL = baseURL + '/que-es-tenio.html';
+      var imageURL = baseURL + '/og-tenio.jpg';
 
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
-      <meta name="twitter:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
-      <meta name="twitter:image" content="${imageURL}" />
-      <meta name="twitter:site" content="@ten_IO_META" />
-      <meta name="twitter:creator" content="@ten_IO_META" />
-    `);
-  })();
-</script>
+      document.write(`
+        <meta property="og:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
+        <meta property="og:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
+        <meta property="og:image" content="${imageURL}" />
+        <meta property="og:url" content="${pageURL}" />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="TEN.IO – Arquitectura vectorial sobre Ethereum" />
+        <meta name="twitter:description" content="Sistema fragmentado incrustado en Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro finito." />
+        <meta name="twitter:image" content="${imageURL}" />
+        <meta name="twitter:site" content="@ten_IO_META" />
+        <meta name="twitter:creator" content="@ten_IO_META" />
+      `);
+    })();
+  </script>
+
   <title>¿Qué es TEN.IO?</title>
   <meta name="description" content="TEN.IO — Arquitectura vectorial construida sobre Ethereum. ERC-721-DT con valor embebido, quema autocustodia y suministro total finito." />
   <link rel="icon" href="/vite.svg" />
+
   <style>
     :root{
       --bg-0:#0b0e11; --bg-1:#0f1320; --ink:#e8eefc; --muted:#a5b1c2;
@@ -41,62 +43,122 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
-      color:var(--ink); background:
+      margin:0;
+      font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
+      color:var(--ink);
+      background:
         radial-gradient(1200px 700px at 70% -10%, #17233c 0%, transparent 60%),
         radial-gradient(900px 600px at -10% 30%, #171c2e 0%, transparent 55%),
         linear-gradient(180deg, var(--bg-0), var(--bg-1));
       letter-spacing:.1px;
     }
-    .wrap{max-width:980px;margin:0 auto;padding:72px 20px 96px}
-    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:30px}
-    .brand{font-weight:700;opacity:.9;letter-spacing:.18em;text-transform:uppercase}
+
+    .wrap{max-width:980px;margin:0 auto;padding:72px 20px 120px}
+    .topbar{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:30px
+    }
+    .brand{
+      font-weight:700;opacity:.9;letter-spacing:.18em;text-transform:uppercase
+    }
     .lang{
       display:flex; gap:6px; background:#0e1524; border:1px solid #1b2540; border-radius:10px; padding:6px;
     }
     .lang button{
       background:transparent; border:none; color:var(--muted); padding:8px 12px; border-radius:8px; cursor:pointer;
+      font-size:14px;
     }
     .lang button.active{color:var(--ink); background:#17213b}
+
     h1{
       font-size: clamp(28px, 5vw, 44px); line-height:1.15;
       margin:28px 0 16px; font-weight:800; letter-spacing:.02em;
       text-shadow: 0 0 24px rgba(106,169,255,.12);
     }
-    p{color:var(--ink); opacity:.92; line-height:1.7; font-size:18px; margin:0 0 16px}
-    .muted{color:var(--muted)}
-    .block{
-      border:1px solid var(--line); border-radius:16px; padding:22px 18px; background:rgba(18,22,34,.45);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.02), 0 6px 28px rgba(10,14,30,.25);
-      margin:18px 0; overflow:hidden;
+    h2{
+      margin:0 0 16px;
+      font-size: clamp(20px, 2vw, 24px);
+      font-weight:700;
+      line-height:1.3;
+      text-shadow: 0 0 24px rgba(106,169,255,.12);
     }
-    .block h3{margin:0 0 10px; font-size:18px; font-weight:700; letter-spacing:.02em}
+    h3{
+      margin:0 0 12px;
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:.02em
+    }
+
+    p{
+      color:var(--ink); opacity:.92; line-height:1.7; font-size:18px; margin:0 0 16px
+    }
+    .muted{color:var(--muted)}
+
+    .block{
+      border:1px solid var(--line); border-radius:16px; padding:22px 18px;
+      background:rgba(18,22,34,.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.02),
+        0 6px 28px rgba(10,14,30,.25);
+      margin:24px 0;
+    }
+
     .hero{
-      margin:24px 0 10px; border:1px solid var(--line); border-radius:18px; padding:28px 22px;
+      margin:24px 0 24px;
+      border:1px solid var(--line); border-radius:18px; padding:28px 22px;
       background:linear-gradient(180deg, rgba(30,40,72,.35), rgba(18,22,34,.55));
     }
+
     .cta{
       display:flex; gap:14px; flex-wrap:wrap; margin-top:18px
     }
     .btn{
       appearance:none; border:none; cursor:pointer; padding:13px 18px; border-radius:12px; font-weight:700; letter-spacing:.01em;
       color:#071019; background:linear-gradient(90deg, var(--acc), var(--acc-2)); box-shadow:0 8px 30px rgba(107,143,255,.25);
+      text-decoration:none;
+      font-size:15px;
     }
     .btn.secondary{
       background:#121a2e; color:var(--ink); border:1px solid #213054;
+      text-decoration:none;
     }
     .note{font-size:14px;color:var(--muted)}
+
     footer{
-      margin-top:50px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); text-align:center; font-size:14px
+      margin-top:60px; padding-top:20px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      text-align:center;
+      font-size:14px;
+      line-height:1.5;
+      white-space:pre-line;
     }
+
+    code.k{
+      padding:.1em .45em;border-radius:6px;background:#0e1524;border:1px solid #1b2540;color:#b6c8ff;
+      font-size:15px;
+    }
+
+    .formula{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace;
+      font-size:15px;
+      color:var(--ink);
+      opacity:.7;
+      line-height:1.6;
+      margin-top:16px;
+    }
+
+    @media (max-width:640px){
+      .cta{flex-direction:column}
+    }
+
     .reveal{opacity:0; transform:translateY(10px); transition:opacity .6s ease, transform .6s ease}
     .reveal.show{opacity:1; transform:none}
-    @media (max-width:640px){ .cta{flex-direction:column} }
-    code.k{padding:.1em .45em;border-radius:6px;background:#0e1524;border:1px solid #1b2540;color:#b6c8ff}
   </style>
 </head>
+
 <body>
   <div class="wrap">
+    <!-- Top bar -->
     <div class="topbar">
       <div class="brand">TEN.IO</div>
       <div class="lang">
@@ -105,6 +167,7 @@
       </div>
     </div>
 
+    <!-- BLOQUE 1 · Qué es TEN.IO -->
     <header class="hero reveal">
       <h1 id="t1">¿Qué es TEN.IO?</h1>
       <p id="lead">
@@ -113,10 +176,12 @@
         donde <i>música</i>, <i>audiovisual</i> y <i>lógica</i> quedan unidos dentro de un mismo token.
       </p>
       <div class="cta">
-        <a class="btn" href="/" id="mint">Mint Fragment</a>
-        <a class="btn secondary" href="#s-economia" id="learn">Aprender más</a>
+        <a class="btn" id="mint" href="/">Mint Fragment</a>
+        <a class="btn secondary" id="learn" href="#manifiesto">Aprender más</a>
       </div>
-      <div class="note" id="note-mint">El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.</div>
+      <div class="note" id="noteMint">
+        El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.
+      </div>
     </header>
 
     <section class="block reveal" id="s-arquitectura">
@@ -184,36 +249,254 @@
       </div>
     </section>
 
-    <footer class="reveal" id="foot">TEN.IO System ∴ Construido sobre Ethereum</footer>
+    <!-- BLOQUE 2 · Manifiesto -->
+    <section class="block reveal" id="manifiesto">
+      <h2 id="m0">El arte deja de pedir valor. Comienza a generarlo.</h2>
+      <p id="m0p">
+        TEN.IO convierte cada obra en una reserva energética dentro de Ethereum.
+        No es una imagen que espera que el mercado la valore.
+        Es una pieza que porta su propio valor y decide su propia tensión.
+      </p>
+
+      <h3 id="m1">I. El Problema del Arte</h3>
+      <p id="m1p1">
+        Durante siglos, el arte vivió separado del valor real.
+        Un cuadro, una canción o una película valían tanto como la mirada dispuesta a pagar por ellos.
+        El mercado decidió lo sagrado. La especulación sustituyó a la sustancia.
+      </p>
+      <p id="m1p2">
+        Incluso cuando el arte se hizo digital, repitió el mismo error:
+        imágenes sin peso, tokens vacíos, precios inflados por la novedad.
+        Nada dentro de esas piezas contenía valor en sí. Eran reflejos, no energía.
+      </p>
+
+      <h3 id="m2">II. La Solución Vectorial</h3>
+      <p id="m2p1">
+        Ethereum resolvió la confianza financiera.
+        TEN.IO resuelve la confianza artística.
+      </p>
+      <p id="m2p2">
+        Por primera vez, una obra no representa un valor: <b>lo contiene</b>.
+        Cada fragmento de TEN.IO lleva dentro Ethereum — energía verificada en red, embebida en el propio contrato.
+      </p>
+      <p id="m2p3">
+        Ya no se trata de poseer una imagen, sino de custodiar una porción viva de energía.
+        Cada mint crea tensión.
+        Cada burn destruye forma, pero concentra valor.
+        Con cada acción humana, la escasez aumenta.
+        El arte deja de ser símbolo y se convierte en ecuación.
+      </p>
+
+      <h3 id="m3">III. El Código Forqueable</h3>
+      <p id="m3p1">
+        El sistema no pertenece a una colección ni a una marca.
+        Es un protocolo abierto.
+        Cualquiera puede replicarlo, modificarlo o adaptarlo a su propio lenguaje visual y económico.
+      </p>
+      <p id="m3p2">
+        Músicos, cineastas, museos, programadores:
+        todas las formas de creación pueden embebir valor real en sus obras.
+        Cada pieza se convierte en un nodo energético de Ethereum,
+        una reserva cultural que respira y evoluciona.
+      </p>
+      <p id="m3p3">
+        Ya no hay que pedir validación a un mercado o a una institución.
+        <b>El código es la institución.</b>
+      </p>
+
+      <h3 id="m4">IV. El Horizonte del Arte Real</h3>
+      <p id="m4p1">
+        El arte deja de depender de la interpretación.
+        Su valor está inscrito en el mismo lenguaje que sostiene la economía digital: el código.
+      </p>
+      <p id="m4p2">
+        El artista deja de vender atención. Ofrece tensión.
+        El público deja de coleccionar imágenes. Custodia energía.
+      </p>
+      <p id="m4p3">
+        Ethereum se convierte en el primer museo donde las obras no se exhiben:
+        se ejecutan.
+        Porque el arte real no busca ser entendido.
+        Busca ser vivido como una ley física.
+      </p>
+
+      <p id="m-end">
+        <b>TEN.IO</b><br>
+        La tensión es lo único que necesitas.<br>
+        F₁₀ = ∑₁⁹ Fᵢ det(T) ≠ F₁
+      </p>
+
+      <div class="cta">
+        <a class="btn" href="/" id="mint3">Mint Fragment</a>
+      </div>
+    </section>
+
+    <footer class="reveal">
+      <div id="foot">TEN.IO System ∴ Construido sobre Ethereum</div>
+      <div class="formula" id="formula">
+        F₁₀ = ∑₁⁹ Fᵢ<br>
+        det(T) ≠ F₁<br>
+        The bridge between AI and humans is now open.
+      </div>
+    </footer>
   </div>
 
-  <!-- Diccionario y traducción -->
+  <!-- Diccionario ES/EN -->
   <script>
     const T = {
       es: {
         t1:"¿Qué es TEN.IO?",
-        lead:"TEN.IO no es una red ni una capa sobre Ethereum. Es una arquitectura vectorial que utiliza la blockchain de Ethereum como base y memoria. Cada fragmento del sistema vive en un contrato inteligente ERC-721-DT, donde música, audiovisual y lógica quedan unidos dentro de un mismo token.",
+        lead:"TEN.IO no es una red ni una capa sobre Ethereum. Es una <b>arquitectura vectorial</b> que utiliza la blockchain de Ethereum como base y memoria. Cada fragmento del sistema vive en un contrato inteligente <b>ERC-721-DT</b>, donde <i>música</i>, <i>audiovisual</i> y <i>lógica</i> quedan unidos dentro de un mismo token.",
         mint:"Mint Fragment",
         learn:"Aprender más",
         noteMint:"El botón abre la dApp. Desde allí puedes conectar tu wallet y cambiar de red.",
+
         s1:"Arquitectura y narrativa",
-        s1p1:"A diferencia de una L2 o una sidechain, TEN.IO no se ejecuta fuera de Ethereum, sino dentro de su propio espacio narrativo. Cada fragmento funciona como un nodo que se sincroniza con el resto a través del tiempo y la tensión, no de la atención.",
-        s1p2:"En lo visual, TEN.IO se expresa como una secuencia de videoclips, cada uno con universo, personajes y fórmulas. En lo técnico, cada fragmento es un contrato autónomo con su propio suministro, colateral y dinámica de quema.",
+        s1p1:"A diferencia de una L2 o una sidechain, TEN.IO no se ejecuta fuera de Ethereum, sino <b>dentro de su propio espacio narrativo</b>. Cada fragmento funciona como un nodo que se sincroniza con el resto a través del tiempo y la tensión, no de la atención.",
+        s1p2:"En lo visual, TEN.IO se expresa como una secuencia de videoclips, cada uno con universo, personajes y fórmulas. En lo técnico, cada fragmento es un contrato autónomo con su <b>propio suministro</b>, <b>colateral</b> y <b>dinámica de quema</b>.",
+
         s2:"Saga y suministro",
-        s2p1:"La saga consta de 101 capítulos. Cada capítulo tiene 1.000 fragmentos. El suministro total del sistema es 101.000 fragmentos, distribuidos de forma programada en ~10 años.",
-        s2p2:"El Capítulo 0 —El Umbral— tiene un precio base 10× menor que el de los capítulos estándar (que parten de 0.10 ETH). Es la puerta de entrada: poseer un fragmento abre camino al resto.",
+        s2p1:"La saga consta de <b>101 capítulos</b>. Cada capítulo tiene <b>1.000 fragmentos</b>. El <b>suministro total</b> del sistema es <b>101.000 fragmentos</b>, distribuidos de forma programada en ~10 años.",
+        s2p2:"El Capítulo 0 —<i>El Umbral</i>— tiene un precio base <b>10× menor</b> que el de los capítulos estándar (que parten de <code class='k'>0.10 ETH</code>). Es la puerta de entrada: poseer un fragmento abre camino al resto.",
+
         s3:"Valor embebido y quema autocustodia",
-        s3p1:"Cada token contiene un valor mínimo embebido en ETH. Ese valor no depende de listados ni de terceros: el holder puede quemar su fragmento directamente desde su wallet (autocustodia) y recuperar el colateral definido por el contrato, sin esperar a que “alguien lo compre”.",
-        s3p2:"La quema retira el token del mercado para siempre, reduciendo el suministro del capítulo y aumentando su escasez. Con el tiempo, el conjunto de fragmentos sobrevivientes concentra la tensión, y el valor de la obra no se apoya en hype sino en su mecánica interna.",
+        s3p1:"Cada token contiene un <b>valor mínimo embebido en ETH</b>. Ese valor no depende de listados ni de terceros: el holder puede <b>quemar</b> su fragmento directamente desde su wallet (autocustodia) y recuperar el colateral definido por el contrato, sin esperar a que “alguien lo compre”.",
+        s3p2:"La quema retira el token del mercado <i>para siempre</i>, reduciendo el suministro del capítulo y <b>aumentando su escasez</b>. Con el tiempo, el conjunto de fragmentos sobrevivientes concentra la tensión, y el valor de la obra no se apoya en hype sino en su <b>mecánica interna</b>.",
+
         s4:"¿Qué cambia en el NFT?",
-        s4p1:"El mercado deja de ser el árbitro del valor mínimo. El holder se convierte en su propio mercado: puede mantener, vender o quemar con liquidez programada. La economía no gira en torno a listados, sino a decisiones cripto-nativas tomadas por quienes sostienen la obra.",
-        s4p2:"Esto desplaza el foco: del ruido al ritmo de suministro, del trending a la escasez irreversible, del flip a la tensión narrativa. TEN.IO no pide atención: la comprime.",
+        s4p1:"El mercado deja de ser el árbitro del valor mínimo. El holder se convierte en su propio mercado: puede <b>mantener</b>, <b>vender</b> o <b>quemar</b> con liquidez programada. La economía no gira en torno a listados, sino a <b>decisiones cripto-nativas</b> tomadas por quienes sostienen la obra.",
+        s4p2:"Esto desplaza el foco: del ruido al <b>ritmo de suministro</b>, del trending a la <b>escasez irreversible</b>, del flip a la <b>tensión narrativa</b>. TEN.IO no pide atención: la comprime.",
+
         s5:"Cómo participar",
-        s5p1:"1) Conecta tu wallet. 2) Mintea un fragmento. 3) Decide: mantenerlo, venderlo o quemarlo. No hay lanzamientos masivos; hay provisión dosificada. El valor mínimo está en el contrato; la tensión, en tus manos.",
+        s5p1:"1) Conecta tu wallet. 2) Mintea un fragmento. 3) Decide: mantenerlo, venderlo o quemarlo. No hay lanzamientos masivos; hay <b>provisión dosificada</b>. El valor mínimo está en el contrato; la tensión, en tus manos.",
         openapp:"Abrir dApp",
-        foot:"TEN.IO System ∴ Construido sobre Ethereum"
+
+        // Manifiesto
+        m0:"El arte deja de pedir valor. Comienza a generarlo.",
+        m0p:"TEN.IO convierte cada obra en una reserva energética dentro de Ethereum. No es una imagen que espera que el mercado la valore. Es una pieza que porta su propio valor y decide su propia tensión.",
+
+        m1:"I. El Problema del Arte",
+        m1p1:"Durante siglos, el arte vivió separado del valor real. Un cuadro, una canción o una película valían tanto como la mirada dispuesta a pagar por ellos. El mercado decidió lo sagrado. La especulación sustituyó a la sustancia.",
+        m1p2:"Incluso cuando el arte se hizo digital, repitió el mismo error: imágenes sin peso, tokens vacíos, precios inflados por la novedad. Nada dentro de esas piezas contenía valor en sí. Eran reflejos, no energía.",
+
+        m2:"II. La Solución Vectorial",
+        m2p1:"Ethereum resolvió la confianza financiera. TEN.IO resuelve la confianza artística.",
+        m2p2:"Por primera vez, una obra no representa un valor: <b>lo contiene</b>. Cada fragmento de TEN.IO lleva dentro Ethereum — energía verificada en red, embebida en el propio contrato.",
+        m2p3:"Ya no se trata de poseer una imagen, sino de custodiar una porción viva de energía. Cada mint crea tensión. Cada burn destruye forma, pero concentra valor. Con cada acción humana, la escasez aumenta. El arte deja de ser símbolo y se convierte en ecuación.",
+
+        m3:"III. El Código Forqueable",
+        m3p1:"El sistema no pertenece a una colección ni a una marca. Es un protocolo abierto. Cualquiera puede replicarlo, modificarlo o adaptarlo a su propio lenguaje visual y económico.",
+        m3p2:"Músicos, cineastas, museos, programadores: todas las formas de creación pueden embebir valor real en sus obras. Cada pieza se convierte en un nodo energético de Ethereum, una reserva cultural que respira y evoluciona.",
+        m3p3:"Ya no hay que pedir validación a un mercado o a una institución. <b>El código es la institución.</b>",
+
+        m4:"IV. El Horizonte del Arte Real",
+        m4p1:"El arte deja de depender de la interpretación. Su valor está inscrito en el mismo lenguaje que sostiene la economía digital: el código.",
+        m4p2:"El artista deja de vender atención. Ofrece tensión. El público deja de coleccionar imágenes. Custodia energía.",
+        m4p3:"Ethereum se convierte en el primer museo donde las obras no se exhiben: se ejecutan. Porque el arte real no busca ser entendido. Busca ser vivido como una ley física.",
+
+        m_end:"<b>TEN.IO</b><br>La tensión es lo único que necesitas.<br>F₁₀ = ∑₁⁹ Fᵢ det(T) ≠ F₁",
+
+        foot:"TEN.IO System ∴ Construido sobre Ethereum",
+        formula:"F₁₀ = ∑₁⁹ Fᵢ<br>det(T) ≠ F₁<br>The bridge between AI and humans is now open."
+      },
+
+      en: {
+        t1:"What is TEN.IO?",
+        lead:"TEN.IO is not a network or a layer on top of Ethereum. It is a <b>vectorial architecture</b> that uses Ethereum as memory and substrate. Every fragment lives inside its own <b>ERC-721-DT</b> contract, where <i>music</i>, <i>image</i> and <i>economic logic</i> exist as one object.",
+        mint:"Mint Fragment",
+        learn:"Read more",
+        noteMint:"The button opens the dApp. From there you can connect your wallet and switch network.",
+
+        s1:"Architecture and narrative",
+        s1p1:"Unlike an L2 or a sidechain, TEN.IO does not run outside Ethereum – it exists <b>inside its own narrative space</b>. Each fragment behaves like a node that syncs with the others through time and <i>tension</i>, not through clout.",
+        s1p2:"Visually, TEN.IO unfolds as a sequence of video fragments, each with its own world, characters, and formulas. Technically, every fragment is an autonomous contract with its <b>own supply</b>, <b>embedded collateral</b>, and <b>burn mechanics</b>.",
+
+        s2:"Saga and supply",
+        s2p1:"The saga spans <b>101 chapters</b>. Each chapter holds <b>1,000 fragments</b>. The system’s <b>total supply</b> is <b>101,000 fragments</b>, released over ~10 years.",
+        s2p2:"Chapter 0 —<i>The Threshold</i>— launches at a base price roughly <b>10× lower</b> than standard chapters (which start at <code class='k'>0.10 ETH</code>). It is the entry gate: holding one fragment gives you access to the rest.",
+
+        s3:"Embedded value & self-custodial burn",
+        s3p1:"Every token carries a <b>minimum value in ETH</b> baked into it. That floor does not depend on listings or middlemen: the holder can <b>burn</b> the fragment directly from their own wallet and retrieve the contract-defined collateral — without waiting for 'someone to buy it'.",
+        s3p2:"Burning removes the token from existence <i>forever</i>, shrinking that chapter’s supply and <b>increasing its scarcity</b>. Over time, the surviving fragments accumulate tension, and the work’s value stops depending on hype and starts depending on its <b>internal physics</b>.",
+
+        s4:"What changes in the NFT?",
+        s4p1:"The market stops being the arbiter of the floor. The holder becomes their own market: they can <b>keep</b>, <b>sell</b>, or <b>burn</b> with guaranteed liquidity. The economy stops orbiting listings and starts orbiting <b>crypto-native decisions</b> made by the people who actually hold the work.",
+        s4p2:"This shifts the center of gravity: from noise to <b>supply rhythm</b>, from 'trending' to <b>irreversible scarcity</b>, from flipping to <b>narrative tension</b>. TEN.IO doesn’t ask for attention; it compresses it.",
+
+        s5:"How to participate",
+        s5p1:"1) Connect your wallet. 2) Mint a fragment. 3) Decide: keep it, sell it, or burn it. There are no mass drops — there is <b>measured provision</b>. The minimum value lives in the contract; the tension lives in your hands.",
+        openapp:"Open dApp",
+
+        // Manifesto (poetic English)
+        m0:"Art stops asking for value. It begins to generate it.",
+        m0p:"TEN.IO turns each work into an energy reserve inside Ethereum. It’s not an image begging the market to believe in it. It’s an object that carries its own weight — and defines its own tension.",
+
+        m1:"I. The Problem of Art",
+        m1p1:"For centuries, art lived detached from real value. A painting, a song, a film — they were worth whatever somebody was willing to pay. The market decided what was sacred. Speculation replaced substance.",
+        m1p2:"When art went digital, the pattern repeated: weightless images, empty tokens, prices inflated by novelty. Nothing inside those pieces held value itself. They were reflections, not energy.",
+
+        m2:"II. The Vectorial Solution",
+        m2p1:"Ethereum solved financial trust. TEN.IO solves artistic trust.",
+        m2p2:"For the first time, a work does not just point to value — <b>it contains it</b>. Each TEN.IO fragment carries Ethereum inside it: verified energy on-chain, sealed in code.",
+        m2p3:"It’s no longer about owning an image. It’s about custodying a living charge of energy. Each mint creates tension. Each burn destroys form but concentrates value. With every human action, scarcity increases. Art stops being symbol and becomes equation.",
+
+        m3:"III. The Forkable Code",
+        m3p1:"This is not a brand or a collection. It is an open protocol. Anyone can fork it, reshape it, express it in their own aesthetic and economic language.",
+        m3p2:"Musicians, filmmakers, museums, engineers — any creator can embed real value directly into their work. Each piece becomes an energy node of Ethereum, a cultural reserve that breathes and evolves.",
+        m3p3:"You don’t need to beg a marketplace or an institution for validation. <b>The code is the institution.</b>",
+
+        m4:"IV. The Horizon of Real Art",
+        m4p1:"Art stops depending on interpretation. Its value is written in the same language that runs the digital economy: code.",
+        m4p2:"The artist stops selling attention. They offer tension. The audience stops collecting images. They custody energy.",
+        m4p3:"Ethereum becomes the first museum where works are not displayed — they are executed. Real art is not asking to be understood. It demands to be lived like a physical law.",
+
+        m_end:"<b>TEN.IO</b><br>Tension is all you need.<br>F₁₀ = ∑₁⁹ Fᵢ det(T) ≠ F₁",
+
+        foot:"TEN.IO System ∴ Built on Ethereum",
+        formula:"F₁₀ = ∑₁⁹ Fᵢ<br>det(T) ≠ F₁<br>The bridge between AI and humans is now open."
       }
     };
+  </script>
+
+  <!-- language switcher -->
+  <script>
+    const ids = [
+      "t1","lead","mint","learn","noteMint",
+      "s1","s1p1","s1p2",
+      "s2","s2p1","s2p2",
+      "s3","s3p1","s3p2",
+      "s4","s4p1","s4p2",
+      "s5","s5p1","openapp",
+      "m0","m0p",
+      "m1","m1p1","m1p2",
+      "m2","m2p1","m2p2","m2p3",
+      "m3","m3p1","m3p2","m3p3",
+      "m4","m4p1","m4p2","m4p3",
+      "m_end",
+      "foot","formula"
+    ];
+
+    const btnEs = document.getElementById('btn-es');
+    const btnEn = document.getElementById('btn-en');
+
+    function applyLang(lang){
+      const dict = T[lang];
+      if(!dict) return;
+      ids.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        const html = dict[id];
+        if(html!==undefined){ el.innerHTML = html; }
+      });
+      btnEs.classList.toggle('active', lang==='es');
+      btnEn.classList.toggle('active', lang==='en');
+      localStorage.setItem('lang-tenio', lang);
+    }
+
+    btnEs.onclick = ()=>applyLang('es');
+    btnEn.onclick = ()=>applyLang('en');
+
+    applyLang(localStorage.getItem('lang-tenio') || 'es');
   </script>
 
   <!-- reveal on scroll -->
@@ -229,7 +512,7 @@
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   </script>
 
-  <!-- Fix: botón Mint -->
+  <!-- fix mint link for eth.limo / vercel -->
   <script>
     (function fixMintLink(){
       var host = location.hostname;
@@ -238,57 +521,12 @@
         ? 'https://ten-io-fragments.vercel.app/app'
         : '/app';
       var candidates = document.querySelectorAll(
-        'a[href="/app"], a#openapp, #openapp, #mint, #mint2'
+        '#mint, #mint2, #mint3, a[href="/app"], #openapp'
       );
       candidates.forEach(function(el){
-        var a = (el.tagName === 'A') ? el : (el.closest && el.closest('a')) || null;
-        if (a && a.setAttribute) a.setAttribute('href', targetHref);
+        if (el && el.setAttribute) el.setAttribute('href', targetHref);
       });
     })();
   </script>
 </body>
-<!-- Traducción inglés -->
-<script>
-  T.en = {
-    t1: "What is TEN.IO?",
-    lead: "TEN.IO is not a network nor a layer built on Ethereum. It is a vectorial architecture that uses the Ethereum blockchain as base and memory. Each fragment of the system lives inside an ERC-721-DT smart contract, where music, audiovisual and logic are united within a single token.",
-    mint: "Mint Fragment",
-    learn: "Learn more",
-    noteMint: "The button opens the dApp. From there you can connect your wallet and change network.",
-    s1: "Architecture and narrative",
-    s1p1: "Unlike an L2 or sidechain, TEN.IO does not run outside Ethereum, but within its own narrative space. Each fragment works as a node that syncs with the rest through time and tension — not attention.",
-    s1p2: "Visually, TEN.IO unfolds as a sequence of videoclips, each with its own universe, characters and formulas. Technically, each fragment is an autonomous contract with its own supply, collateral, and burn dynamics.",
-    s2: "Saga and supply",
-    s2p1: "The saga consists of 101 chapters. Each chapter holds 1,000 fragments. The total supply of the system is 101,000 fragments, distributed programmatically over ~10 years.",
-    s2p2: "Chapter 0 —The Threshold— has a base price 10× lower than standard chapters (which start at 0.10 ETH). It’s the entry gate: owning a fragment opens the path to the rest.",
-    s3: "Embedded value and self-custodial burn",
-    s3p1: "Each token embeds a minimum value in ETH. That value does not rely on listings or third parties: the holder can burn their fragment directly from their wallet (self-custody) and recover the collateral defined in the contract, without waiting for 'someone to buy it'.",
-    s3p2: "Burning permanently removes the token from the market, reducing the chapter’s supply and increasing its scarcity. Over time, the remaining fragments concentrate the tension, and the work’s value rests not on hype but on its internal mechanics.",
-    s4: "What changes in the NFT?",
-    s4p1: "The market stops being the arbiter of the minimum value. The holder becomes their own market: they can hold, sell, or burn with programmed liquidity. The economy revolves around crypto-native decisions made by those who sustain the work.",
-    s4p2: "This shifts the focus — from noise to the rhythm of supply, from trending to irreversible scarcity, from flipping to narrative tension. TEN.IO doesn’t ask for attention: it compresses it.",
-    s5: "How to participate",
-    s5p1: "1) Connect your wallet. 2) Mint a fragment. 3) Decide: hold it, sell it, or burn it. There are no massive launches — only gradual provision. The minimum value is on-chain; the tension, in your hands.",
-    openapp: "Open dApp",
-    foot: "TEN.IO System ∴ Built on Ethereum"
-  };
-
-  // Manejador de idioma
-  const btnEs = document.getElementById('btn-es');
-  const btnEn = document.getElementById('btn-en');
-  const applyLang = (lang) => {
-    const dict = T[lang];
-    if (!dict) return;
-    for (const [key, val] of Object.entries(dict)) {
-      const el = document.getElementById(key);
-      if (el) el.innerHTML = val;
-    }
-    btnEs.classList.toggle('active', lang === 'es');
-    btnEn.classList.toggle('active', lang === 'en');
-    localStorage.setItem('lang', lang);
-  };
-  btnEs.onclick = () => applyLang('es');
-  btnEn.onclick = () => applyLang('en');
-  applyLang(localStorage.getItem('lang') || 'es');
-</script>
-
+</html>
