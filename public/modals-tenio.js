@@ -230,21 +230,39 @@ function getStrings(lang) {
       btnClose: "Cerrar",
       networkPrefix: "Red:",
 
-      // burn confirm
-      burnConfirmTitle: "Vas a quemar este fragmento",
-      burnConfirmIntro: (id) => `Vas a quemar el fragmento #${id}.`,
+      // burn confirm (mainnet vs sepolia)
+      burnConfirmTitleMainnet: "Vas a quemar este fragmento",
+      burnConfirmTitleSepolia: "Vas a simular la quema de este fragmento",
+
+      burnConfirmIntroMainnet: (id) => `Vas a quemar el fragmento #${id}.`,
+      burnConfirmIntroSepolia: (id) =>
+        `Vas a ejecutar la simulación de quema del fragmento #${id} en red de prueba.`,
+
       burnConfirmLabelFrag: "Fragmento:",
       burnConfirmLabelNet: "Red:",
       burnConfirmLabelAction: "Acción:",
-      burnConfirmActionFinal: "Quema definitiva",
-      burnConfirmWarning1: "Esta acción es irrevesible.",
-      burnConfirmWarning2:
+      burnConfirmActionFinalMainnet: "Quema definitiva",
+      burnConfirmActionFinalSepolia: "Simulación de quema",
+
+      // épico mainnet
+      burnConfirmWarningMainnet1: "Esta acción es irreversible.",
+      burnConfirmWarningMainnet2:
         "El fragmento saldrá del suministro del Capítulo 0 para siempre.",
-      burnConfirmWarning3:
-        "Recuperarás el colateral definido en el contrato " +
-        "directamente en tu wallet.",
-      burnConfirmWarning4:
+      burnConfirmWarningMainnet3:
+        "Recuperarás el colateral definido en el contrato directamente en tu wallet.",
+      burnConfirmWarningMainnet4:
         "Nadie podrá volver a mintear este fragmento.",
+
+      // educativo sepolia
+      burnConfirmWarningSepolia1:
+        "Esto es una simulación en una red pública de pruebas (Sepolia).",
+      burnConfirmWarningSepolia2:
+        "Nada aquí afecta al suministro real ni mueve ETH real.",
+      burnConfirmWarningSepolia3:
+        "Esta prueba existe para que entiendas cómo funciona la quema y la recuperación de colateral.",
+      burnConfirmWarningSepolia4:
+        "Si completas este paso, estás listo para hacerlo en Mainnet (donde sí es definitivo).",
+
       burnConfirmQuestion: "¿Quieres continuar?",
       burnConfirmYes: "Sí, quemar",
       burnConfirmCancel: "Cancelar",
@@ -324,20 +342,39 @@ function getStrings(lang) {
       networkPrefix: "Network:",
 
       // burn confirm
-      burnConfirmTitle: "You are about to burn this fragment",
-      burnConfirmIntro: (id) => `You are about to burn fragment #${id}.`,
+      burnConfirmTitleMainnet: "You are about to burn this fragment",
+      burnConfirmTitleSepolia: "You are about to simulate a burn",
+
+      burnConfirmIntroMainnet: (id) => `You are about to burn fragment #${id}.`,
+      burnConfirmIntroSepolia: (id) =>
+        `You are about to run a burn simulation for fragment #${id} on a test network.`,
+
       burnConfirmLabelFrag: "Fragment:",
       burnConfirmLabelNet: "Network:",
       burnConfirmLabelAction: "Action:",
-      burnConfirmActionFinal: "Final burn",
-      burnConfirmWarning1: "This action is irreversible.",
-      burnConfirmWarning2:
+      burnConfirmActionFinalMainnet: "Final burn",
+      burnConfirmActionFinalSepolia: "Burn simulation",
+
+      // mainnet = irreversible, solemn
+      burnConfirmWarningMainnet1: "This action is irreversible.",
+      burnConfirmWarningMainnet2:
         "The fragment will be removed from Chapter 0 supply forever.",
-      burnConfirmWarning3:
+      burnConfirmWarningMainnet3:
         "You will receive the defined collateral from the contract " +
         "directly in your wallet.",
-      burnConfirmWarning4:
+      burnConfirmWarningMainnet4:
         "No one will be able to mint this fragment again.",
+
+      // sepolia = educational, not final
+      burnConfirmWarningSepolia1:
+        "This is a simulation on a public test network (Sepolia).",
+      burnConfirmWarningSepolia2:
+        "Nothing here touches real supply or moves real ETH.",
+      burnConfirmWarningSepolia3:
+        "This run exists so you understand burn + collateral recovery.",
+      burnConfirmWarningSepolia4:
+        "If you can do this, you're ready to do it on Mainnet (where it becomes final).",
+
       burnConfirmQuestion: "Do you want to continue?",
       burnConfirmYes: "Yes, burn",
       burnConfirmCancel: "Cancel",
@@ -405,7 +442,7 @@ function showMintSuccessModal({ tokenId, txHash, networkName, wallet, lang }) {
   card.appendChild(h);
 
   // Subtítulo
-  addP(card, isSepolia ? S.mintSubtitle : S.mintSubtitle, {
+  addP(card, S.mintSubtitle, {
     margin: "0 0 16px",
     fontSize: "15px",
     color: "rgba(255,255,255,0.8)",
@@ -427,7 +464,7 @@ function showMintSuccessModal({ tokenId, txHash, networkName, wallet, lang }) {
 
   // Bloque de texto según red
   if (isSepolia) {
-    // Sepolia: texto de simulación, NO decimos "ETH embebido", NO enseñamos "Fragment #0023 / 1000"
+    // Sepolia: texto de simulación
     addP(card, S.mintBodySepolia1, {
       fontSize: "15px",
       lineHeight: "1.5",
@@ -538,7 +575,6 @@ function showMintSuccessModal({ tokenId, txHash, networkName, wallet, lang }) {
   // Compartir en X
   const shareBtn = ghostBtn(S.btnShareX, () => {
     const url = openEtherscanTx(txHash, networkName);
-    // Para tweet usamos siempre mismo formato corto
     const text =
       `${S.mintTitle}\n${S.mintFrag} #${tokenId} · ` +
       `${S.networkPrefix} ${networkName}\n${url}`;
@@ -561,10 +597,15 @@ function showMintSuccessModal({ tokenId, txHash, networkName, wallet, lang }) {
 function showBurnConfirmModal({ tokenId, networkName, lang, onConfirm, onCancel }) {
   const S = getStrings(lang);
 
+  const isSepolia =
+    /sepolia/i.test(networkName || "") ||
+    /testnet/i.test(networkName || "") ||
+    /sep/i.test(networkName || "");
+
   const { overlay, card } = createBaseModal();
 
   const h = document.createElement("h2");
-  h.textContent = S.burnConfirmTitle;
+  h.textContent = isSepolia ? S.burnConfirmTitleSepolia : S.burnConfirmTitleMainnet;
   h.style.margin = "0 0 12px";
   h.style.fontSize = "24px";
   h.style.fontWeight = "700";
@@ -573,26 +614,47 @@ function showBurnConfirmModal({ tokenId, networkName, lang, onConfirm, onCancel 
   h.style.textAlign = "center";
   card.appendChild(h);
 
-  addP(card, S.burnConfirmIntro(tokenId), {
-    margin: "0 0 16px",
-    fontSize: "15px",
-    color: "rgba(255,255,255,0.8)",
-  });
+  addP(
+    card,
+    isSepolia
+      ? S.burnConfirmIntroSepolia(tokenId)
+      : S.burnConfirmIntroMainnet(tokenId),
+    {
+      margin: "0 0 16px",
+      fontSize: "15px",
+      color: "rgba(255,255,255,0.8)",
+    }
+  );
 
   const rows = [
     { label: S.burnConfirmLabelFrag, valueText: `#${tokenId}` },
     { label: S.burnConfirmLabelNet, valueText: networkName || "—" },
-    { label: S.burnConfirmLabelAction, valueText: S.burnConfirmActionFinal },
+    {
+      label: S.burnConfirmLabelAction,
+      valueText: isSepolia
+        ? S.burnConfirmActionFinalSepolia
+        : S.burnConfirmActionFinalMainnet,
+    },
   ];
   addSmallRowBox(card, rows);
 
-  addP(card, S.burnConfirmWarning1, {
-    fontWeight: "600",
-    margin: "0 0 8px",
-  });
-  addP(card, S.burnConfirmWarning2, { margin: "0 0 8px" });
-  addP(card, S.burnConfirmWarning3, { margin: "0 0 8px" });
-  addP(card, S.burnConfirmWarning4, { margin: "0 0 16px" });
+  if (isSepolia) {
+    addP(card, S.burnConfirmWarningSepolia1, {
+      fontWeight: "600",
+      margin: "0 0 8px",
+    });
+    addP(card, S.burnConfirmWarningSepolia2, { margin: "0 0 8px" });
+    addP(card, S.burnConfirmWarningSepolia3, { margin: "0 0 8px" });
+    addP(card, S.burnConfirmWarningSepolia4, { margin: "0 0 16px" });
+  } else {
+    addP(card, S.burnConfirmWarningMainnet1, {
+      fontWeight: "600",
+      margin: "0 0 8px",
+    });
+    addP(card, S.burnConfirmWarningMainnet2, { margin: "0 0 8px" });
+    addP(card, S.burnConfirmWarningMainnet3, { margin: "0 0 8px" });
+    addP(card, S.burnConfirmWarningMainnet4, { margin: "0 0 16px" });
+  }
 
   const ask = document.createElement("div");
   ask.textContent = S.burnConfirmQuestion;
