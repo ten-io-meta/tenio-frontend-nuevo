@@ -1,5 +1,19 @@
+// Protege el provider para que MetaMask no se pelee con otras extensiones
+if (typeof window !== "undefined" && window.ethereum) {
+  try {
+    Object.defineProperty(window, "ethereum", {
+      configurable: true,
+      writable: false,
+      value: window.ethereum
+    });
+  } catch (e) {
+    console.warn("Ethereum provider conflict ignored:", e);
+  }
+}
+
 // TENIOFragmentConnection.js
-// v7.2 – asegura red también en lecturas, NaN-proof, offsets y vídeo con fallback
+// v7.3 – añade post-mint modal + protección provider + helpers red/tokenId
+// Mantiene toda la lógica anterior (stats, burn, withdraw, etc.)
 
 import { BrowserProvider, Contract, formatEther, parseEther } from "ethers";
 import ABI from "./UmbralFragment.json";
@@ -23,13 +37,76 @@ const toNum = (v, d = 0) => {
     if (v == null) return d;
     const n = Number(v);
     return Number.isFinite(n) ? n : d;
-  } catch { return d; }
+  } catch {
+    return d;
+  }
 };
+
 const clampMin = (x, m = 0) => (x < m ? m : x);
 
 function ipfsPath(ipfsUrl) {
   if (!ipfsUrl) return "";
   return ipfsUrl.startsWith("ipfs://") ? ipfsUrl.slice(7) : ipfsUrl;
+}
+
+// Devuelve "Sepolia", "Ethereum"… según chainId
+async function getNetworkName() {
+  if (!hasWindowEthereum()) return "Ethereum";
+  try {
+    const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
+    const hex = (chainIdHex || "").toLowerCase();
+    if (hex === "0xaa36a7") return "Sepolia"; // 11155111
+    if (hex === "0x1")      return "Ethereum";
+    return "Ethereum";
+  } catch {
+    return "Ethereum";
+  }
+}
+
+// Intenta sacar la dirección de la wallet conectada
+async function getActiveWalletAddress() {
+  if (!hasWindowEthereum()) return "0x????";
+  try {
+    const accts = await window.ethereum.request({ method: "eth_accounts" });
+    if (accts && accts[0]) return accts[0];
+  } catch {}
+  try {
+    if (window.ethereum.selectedAddress) return window.ethereum.selectedAddress;
+  } catch {}
+  return "0x????";
+}
+
+// Extrae tokenId del receipt usando evento Transfer(from=0x0 → user)
+function extractMintedTokenIdFromReceipt(receipt, contractInstance) {
+  try {
+    if (!receipt || !receipt.logs || !contractInstance || !contractInstance.interface) {
+      return "—";
+    }
+    const zeroAddr = "0x0000000000000000000000000000000000000000";
+    for (const log of receipt.logs) {
+      if (
+        log.address &&
+        contractInstance.address &&
+        log.address.toLowerCase() === contractInstance.address.toLowerCase()
+      ) {
+        // ethers v6: interface.parseLog(log)
+        const parsed = contractInstance.interface.parseLog(log);
+        if (
+          parsed &&
+          parsed.name === "Transfer" &&
+          parsed.args &&
+          parsed.args.from &&
+          parsed.args.tokenId &&
+          parsed.args.from.toLowerCase() === zeroAddr.toLowerCase()
+        ) {
+          return parsed.args.tokenId.toString();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("No pude extraer tokenId desde receipt:", err);
+  }
+  return "—";
 }
 
 // ---------- Video ----------
@@ -42,8 +119,12 @@ export async function getHeroVideoHttp() {
     `https://gateway.pinata.cloud/ipfs/${path}`,
   ];
   for (const url of candidates) {
-    try { const r = await fetch(url, { method: "HEAD" }); if (r.ok) return url; } catch {}
+    try {
+      const r = await fetch(url, { method: "HEAD" });
+      if (r.ok) return url;
+    } catch {}
   }
+  // fallback al primero aunque no hayamos podido HEAD-ok
   return candidates[0];
 }
 
@@ -73,7 +154,9 @@ export async function ensureNetwork(expected /* "sepolia" | "mainnet" */) {
   if (!expected) return;
   if (!hasWindowEthereum()) throw new Error("No provider");
   const wanted = expected === "sepolia" ? "0xaa36a7" : "0x1";
-  const current = (await window.ethereum.request({ method: "eth_chainId" }))?.toLowerCase();
+  const current = (
+    await window.ethereum.request({ method: "eth_chainId" })
+  )?.toLowerCase();
   if (current !== wanted) {
     try {
       await window.ethereum.request({
@@ -99,7 +182,7 @@ export function getActiveAddressFromChain(chainIdHex, explicit = null) {
 }
 
 // ---------- Offsets ----------
-export function getCounterOffset(chainIdHex, explicit = null) { // compat con tu App
+export function getCounterOffset(chainIdHex, explicit = null) {
   if (explicit === "sepolia") return OFFSET_SEPOLIA;
   if (explicit === "mainnet") return OFFSET_MAINNET;
   const hex = (chainIdHex || "").toLowerCase();
@@ -107,6 +190,7 @@ export function getCounterOffset(chainIdHex, explicit = null) { // compat con tu
   if (hex === "0x1")      return OFFSET_MAINNET;
   return 0;
 }
+
 function visualOffset(activeAddr, chainIdHex, explicit) {
   if (explicit === "sepolia") return OFFSET_SEPOLIA;
   if (explicit === "mainnet") return OFFSET_MAINNET;
@@ -122,7 +206,10 @@ function visualOffset(activeAddr, chainIdHex, explicit) {
 }
 
 function requireAddress(addr, label = "contract") {
-  if (!addr || addr === "0x0000000000000000000000000000000000000000") {
+  if (
+    !addr ||
+    addr === "0x0000000000000000000000000000000000000000"
+  ) {
     throw new Error(`Falta dirección de ${label}`);
   }
   return addr;
@@ -150,10 +237,15 @@ export async function getWriteContract(activeAddr, explicitExpected = null) {
 // ---------- Fallback: conteo por eventos ----------
 async function countMintsViaEvents(contract) {
   try {
-    const filter = contract.filters.Transfer("0x0000000000000000000000000000000000000000");
+    // Transfer(from=0x0 → to=buyer) es el mint
+    const filter = contract.filters.Transfer(
+      "0x0000000000000000000000000000000000000000"
+    );
     const events = await contract.queryFilter(filter, 0, "latest");
     return events.length;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 // ---------- Lecturas ----------
@@ -179,7 +271,9 @@ export async function getStats(activeAddr, chainIdHex = null, explicit = null) {
         const addr = await c.getAddress();
         const p = new BrowserProvider(window.ethereum);
         return await p.getBalance(addr);
-      } catch { return 0n; }
+      } catch {
+        return 0n;
+      }
     })(),
   ]);
 
@@ -189,14 +283,17 @@ export async function getStats(activeAddr, chainIdHex = null, explicit = null) {
       (await c._nextId?.().catch(() => null)) ??
       (await c.nextId?.().catch(() => null)) ??
       (await c.mintedEver?.().catch(() => null));
-    if (next != null) mintedHistoric = toNum(next) - 1;
-    else {
+    if (next != null) {
+      mintedHistoric = toNum(next) - 1;
+    } else {
       const byEvents = await countMintsViaEvents(c);
-      mintedHistoric = byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
+      mintedHistoric =
+        byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
     }
   } catch {
     const byEvents = await countMintsViaEvents(c);
-    mintedHistoric = byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
+    mintedHistoric =
+      byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
   }
   mintedHistoric = clampMin(toNum(mintedHistoric, 0));
 
@@ -207,9 +304,9 @@ export async function getStats(activeAddr, chainIdHex = null, explicit = null) {
   const maxSupply    = clampMin(toNum(maxSupplyRaw, 1000));
   const excess       = clampMin(balanceEth - requiredEth, 0);
 
-  const offset = visualOffset(activeAddr, chainIdHex, explicit);
-  const histWithOffset = clampMin(mintedHistoric + offset, 0);
-  const available      = clampMin(maxSupply - histWithOffset, 0);
+  const offset            = visualOffset(activeAddr, chainIdHex, explicit);
+  const histWithOffset    = clampMin(mintedHistoric + offset, 0);
+  const available         = clampMin(maxSupply - histWithOffset, 0);
 
   return {
     address: activeAddr,
@@ -228,41 +325,115 @@ export async function getStats(activeAddr, chainIdHex = null, explicit = null) {
 
 // ---------- Owned / URI ----------
 export async function getOwnedFragments(activeAddr, ownerAddr) {
-  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
-  const balance = toNum(await c.balanceOf(ownerAddr).catch(() => 0n), 0);
+  const c = await getReadContract(
+    activeAddr,
+    inferExpectedNetworkFromAddress(activeAddr)
+  );
+  const balance = toNum(
+    await c.balanceOf(ownerAddr).catch(() => 0n),
+    0
+  );
   const ids = [];
   for (let i = 0; i < balance; i++) {
-    try { ids.push(toNum(await c.tokenOfOwnerByIndex(ownerAddr, i), 0)); } catch {}
+    try {
+      ids.push(
+        toNum(await c.tokenOfOwnerByIndex(ownerAddr, i), 0)
+      );
+    } catch {}
   }
   return ids;
 }
+
 export async function getTokenURI(activeAddr, tokenId) {
-  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
+  const c = await getReadContract(
+    activeAddr,
+    inferExpectedNetworkFromAddress(activeAddr)
+  );
   return await c.tokenURI(tokenId);
+}
+
+// ---------- Modal helper tras mint ----------
+async function postMintShowModal(receipt, contractInstance) {
+  // 1. status ok?
+  if (!receipt || receipt.status !== 1) return;
+
+  // 2. datos contexto
+  const walletAddr   = await getActiveWalletAddress();
+  const networkName  = await getNetworkName();
+  const minedTokenId = extractMintedTokenIdFromReceipt(receipt, contractInstance);
+  const txHash       = receipt.transactionHash || "0x";
+
+  // 3. dispara el modal global (definido en /public/modals-tenio.js)
+  if (typeof window !== "undefined" && typeof window.showMintSuccessModal === "function") {
+    window.showMintSuccessModal({
+      tokenId: minedTokenId,
+      txHash: txHash,
+      networkName: networkName,
+      wallet: walletAddr
+    });
+  } else if (typeof showMintSuccessModal === "function") {
+    // fallback si showMintSuccessModal está global sin window.
+    showMintSuccessModal({
+      tokenId: minedTokenId,
+      txHash: txHash,
+      networkName: networkName,
+      wallet: walletAddr
+    });
+  } else {
+    console.warn(
+      "Mint OK pero showMintSuccessModal no está cargado todavía."
+    );
+  }
 }
 
 // ---------- Escrituras ----------
 export async function mintNext(activeAddr, metadataCidOrPath) {
+  // 1. contrato en red correcta + signer
   const c = await getWriteContract(activeAddr);
+
+  // 2. precio de mint
   const price = await c.MINT_PRICE();
+
+  // 3. tx de mint (tu función puede llamarse distinto en tu contrato; aquí usamos mintFragment)
   const tx = await c.mintFragment(metadataCidOrPath, { value: price });
-  return await tx.wait();
+
+  // 4. esperamos a que mine
+  const receipt = await tx.wait();
+
+  // 5. disparamos el modal post-mint con datos reales
+  try {
+    await postMintShowModal(receipt, c);
+  } catch (e) {
+    console.warn("No se pudo lanzar el modal post-mint:", e);
+  }
+
+  // devolvemos el receipt por si tu UI ya lo usaba
+  return receipt;
 }
+
 export async function burn(activeAddr, tokenId) {
   const c = await getWriteContract(activeAddr);
   const tx = await c.burn(tokenId);
-  return await tx.wait();
+  const receipt = await tx.wait();
+  // Aquí luego meteremos el modal "atención, esto se destruye y recuperas colateral".
+  // De momento lo dejamos limpio.
+  return receipt;
 }
+
 export async function withdrawAllSurplus(activeAddr) {
   const c = await getWriteContract(activeAddr);
   const to = await c.runner.getAddress();
   const tx = await c.withdrawAllSurplus(to);
   return await tx.wait();
 }
+
 export async function withdrawSurplus(activeAddr, amountEth) {
   const c = await getWriteContract(activeAddr);
   const to = await c.runner.getAddress();
-  const tx = await c.withdrawSurplus(to, parseEther(String(amountEth)));
+  const tx = await c.withdrawSurplus(
+    to,
+    parseEther(String(amountEth))
+  );
   return await tx.wait();
 }
 
@@ -270,15 +441,27 @@ export async function withdrawSurplus(activeAddr, amountEth) {
 export async function addToMetamask(activeAddr, tokenId, tokenUri) {
   if (!hasWindowEthereum()) throw new Error("No provider");
   const imgPath = ipfsPath(DEFAULT_IMAGE_IPFS);
-  const image   = imgPath ? `https://ipfs.io/ipfs/${imgPath}` : undefined;
+  const image   = imgPath
+    ? `https://ipfs.io/ipfs/${imgPath}`
+    : undefined;
   try {
     await window.ethereum.request({
       method: "wallet_watchAsset",
-      params: { type: "ERC721", options: { address: activeAddr, tokenId: String(tokenId), image } },
+      params: {
+        type: "ERC721",
+        options: {
+          address: activeAddr,
+          tokenId: String(tokenId),
+          image,
+        },
+      },
     });
-  } catch (e) { console.warn("watchAsset error", e); }
+  } catch (e) {
+    console.warn("watchAsset error", e);
+  }
 }
 
+// ---------- Export env visible ----------
 export const __env = {
   FIXED_ADDR,
   ADDR_SEPOLIA,

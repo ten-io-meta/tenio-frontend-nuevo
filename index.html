@@ -11,7 +11,7 @@
     <!-- Canonical (tu dominio principal en Vercel) -->
     <link rel="canonical" href="https://ten-io-fragments.vercel.app" />
 
-    <!-- Favicon (opcional, deja tu /favicon.ico si lo tienes) -->
+    <!-- Favicon (si lo tienes en /public/favicon.ico; si no, puedes quitar esta línea) -->
     <link rel="icon" href="/favicon.ico">
 
     <!-- Open Graph -->
@@ -31,8 +31,15 @@
     <meta name="twitter:description" content="Cruza el umbral. Mint abierto en Ethereum Mainnet.">
     <meta name="twitter:image" content="https://ipfs.io/ipfs/bafybeihwpcyqdjs7iw3jdgmtpcn5wtqrzmu4ze2trxvufyg4dicg2i5h3m/umbral.png">
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- App React / Vite -->
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Modal post-mint (certificado, hash, etc.) -->
+    <!-- Este archivo debe existir en /public/modals-tenio.js -->
+    <script src="/modals-tenio.js"></script>
   </body>
 </html>

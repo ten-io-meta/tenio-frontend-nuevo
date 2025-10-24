@@ -136,3 +136,29 @@ input { min-width: 180px; }
   .left { min-height: 50vh; }
   .video { height: 100%; width: auto; }
 }
+/* --- selector de idioma en el header del dApp --- */
+.langSwitch {
+  display: flex;
+  gap: 6px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 4px 6px;
+  margin-left: auto; /* empuja el selector a la derecha */
+}
+
+.langSwitch button {
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.langSwitch button.active {
+  background: #2a2a2a;
+}
