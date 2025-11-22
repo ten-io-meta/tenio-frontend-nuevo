@@ -39,7 +39,6 @@ const T = {
 
     mintPrice: "Mint",
     burnRefund: "Colateral (burn)",
-    reserveReq: "Reserva requerida",
     withdrawable: "Excedente retirable",
 
     loadingStats: "Cargando estadísticas…",
@@ -82,7 +81,6 @@ const T = {
 
     mintPrice: "Mint",
     burnRefund: "Collateral (burn)",
-    reserveReq: "Required reserve",
     withdrawable: "Withdrawable surplus",
 
     loadingStats: "Loading stats…",
@@ -536,24 +534,20 @@ export default function App() {
               🧮 <b>{tr.statsMintedHist}:</b> {derived.minted}
             </div>
             <div>
-              🥓 <b>{tr.statsBurned}:</b> {derived.burned}
+              ⚰️ <b>{tr.statsBurned}:</b> {derived.burned}
             </div>
             <div>
-              🟢 <b>{tr.statsLive}:</b> {derived.live}
+              💎 <b>{tr.statsLive}:</b> {derived.live}
             </div>
             <div>
               🪙 <b>{tr.statsAvail}:</b> {derived.available}
             </div>
 
             <div className="mt8">
-              <b>{tr.mintPrice}:</b> {stats?.mintPrice ?? 0} ETH
+              <b>{tr.mintPrice}:</b> {stats?.mintPrice ?? 0} ETH + gas
             </div>
             <div>
               <b>{tr.burnRefund}:</b> {stats?.burnRefund ?? 0} ETH
-            </div>
-            <div>
-              <b>{tr.reserveReq}:</b>{" "}
-              {(stats?.requiredReserveEth ?? 0).toFixed(3)} ETH
             </div>
 
             {isOwner && (
