@@ -1,0 +1,38 @@
+export const fragments = [
+  {
+    id: 1,
+    season: "01",
+    fragment: "F01",
+    title: "Crack in the Silence — Fragment 01",
+    videoUrl: "https://aquamarine-impossible-yak-800.mypinata.cloud/ipfs/bafybeid7lp4i3viiqpxl7ywou53cootqio3leoo3jvggxrjt34dbsg64bq/1.Crack%20in%20the%20Silence/crack1.mp4",
+    description: "TEN.IO audiovisual fragment stored on IPFS.",
+    keywords: ["TEN.IO", "Crack in the Silence", "IPFS", "Ethereum"],
+  },
+  {
+    id: 2,
+    season: "01",
+    fragment: "F01",
+    title: "Crack in the Silence — Clip 07",
+    videoUrl: "https://aquamarine-impossible-yak-800.mypinata.cloud/ipfs/bafybeid7lp4i3viiqpxl7ywou53cootqio3leoo3jvggxrjt34dbsg64bq/1.Crack%20in%20the%20Silence/crack_clip7.mp4",
+    description: "TEN.IO audiovisual fragment stored on IPFS.",
+    keywords: ["TEN.IO", "Crack in the Silence", "IPFS", "Ethereum"],
+  },
+  {
+    id: 3,
+    season: "01",
+    fragment: "F11",
+    title: "Fracture — Fragment",
+    videoUrl: "https://aquamarine-impossible-yak-800.mypinata.cloud/ipfs/bafybeid7lp4i3viiqpxl7ywou53cootqio3leoo3jvggxrjt34dbsg64bq/11.Fracture/888dfc8a851cf53428edb3bd9934de71.mp4",
+    description: "TEN.IO audiovisual fragment stored on IPFS.",
+    keywords: ["TEN.IO", "Fracture", "IPFS", "Ethereum"],
+  },
+  {
+    id: 4,
+    season: "01",
+    fragment: "Archive",
+    title: "TEN.IO Archive Fragment",
+    videoUrl: "https://aquamarine-impossible-yak-800.mypinata.cloud/ipfs/bafybeifkq6fubvcffzb432ofvjsczhzbnwuin5welunfhfaiy5pq7qi3sy/VN20250920_145959.mp4",
+    description: "TEN.IO audiovisual fragment stored on IPFS.",
+    keywords: ["TEN.IO", "IPFS", "Ethereum"],
+  },
+];
