@@ -5,9 +5,9 @@ import Vault from "./Vault.jsx";
 import "./App.css";
 
 function Root() {
-  const path = window.location.pathname;
+  const path = window.location.hash;
 
-  if (path === "/vault") {
+  if (path === "#/vault") {
     return <Vault />;
   }
 
