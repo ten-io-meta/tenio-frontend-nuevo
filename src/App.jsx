@@ -490,7 +490,12 @@ export default function App() {
           >
             {tr.lang_en}
           </button>
-        </div>
+                </div>
+
+        <a className="vaultButton" href="/#/vault">
+          ENTER THE VAULT
+        </a>
+
       </header>
 
       <main className="grid">
@@ -520,10 +525,16 @@ export default function App() {
 
           <div className="addr">{activeContract || "<sin contrato>"}</div>
 
-          <div className="row">
+                    <div className="row">
             <button onClick={handleUseSepolia}>{tr.btnSepolia}</button>
             <button onClick={handleUseMainnet}>{tr.btnMainnet}</button>
             <button onClick={handleConnect}>{tr.btnConnect}</button>
+          </div>
+
+          <div className="row">
+            <a className="vaultButton" href="/#/vault">
+              ENTER THE VAULT
+            </a>
           </div>
 
           <div className="stats">
