@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import Vault from "./Vault.jsx";
 import "./App.css";
 
 function Root() {
-  const path = window.location.hash;
+  const [hash, setHash] = useState(window.location.hash);
 
-  if (path === "#/vault") {
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  if (hash.includes("vault")) {
     return <Vault />;
   }
 

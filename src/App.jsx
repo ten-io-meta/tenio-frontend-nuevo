@@ -492,9 +492,7 @@ export default function App() {
           </button>
                 </div>
 
-        <a className="vaultButton" href="/#/vault">
-          ENTER THE VAULT
-        </a>
+    
 
       </header>
 
