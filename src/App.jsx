@@ -530,11 +530,16 @@ export default function App() {
           </div>
 
           <div className="row">
-            <a className="vaultButton" href="/#/vault">
-              ENTER THE VAULT
-            </a>
-          </div>
+  <a className="vaultButton" href="/#/vault">
+    ENTER THE VAULT
+  </a>
+</div>
 
+<div className="row">
+  <a className="vaultButton" href="/#/music">
+    MUSIC ARCHIVE
+  </a>
+</div>
           <div className="stats">
             <div>
               <b>{tr.statsTotal}:</b> {derived.total}
