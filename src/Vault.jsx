@@ -25,7 +25,14 @@ export default function Vault() {
                 e.currentTarget.pause();
                 e.currentTarget.currentTime = 0;
               }}
-              onClick={() => window.open(item.videoUrl, "_blank")}
+              onClick={() =>
+  (window.location.href = `/#/fragment/${item.id}-${item.title
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")}`)
+}
             />
 
             <div className="vault-info">
