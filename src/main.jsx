@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { inject } from "@vercel/analytics";
 import App from "./App.jsx";
 import Vault from "./Vault.jsx";
 import MusicArchive from "./MusicArchive.jsx";
 import FragmentPage from "./FragmentPage.jsx";
 import "./App.css";
+
+// Initialize Vercel Web Analytics
+inject();
 
 function Root() {
   const [hash, setHash] = useState(window.location.hash);
