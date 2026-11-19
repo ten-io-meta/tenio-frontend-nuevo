@@ -124,3 +124,14 @@ test("Sepolia mint and burn modals must not describe a real onchain action as si
   assert.equal(source.includes("Esta es una simulación en una red pública de pruebas"), false);
   assert.equal(source.includes("This is a simulation on a public test network"), false);
 });
+
+import { PREVIEW_READ_ONLY, assertFinancialWritesEnabled } from "../src/web3/deploymentMode.js";
+
+test("Preview and unknown deployment builds are read-only even if the UI button is bypassed", () => {
+  assert.equal(PREVIEW_READ_ONLY, true);
+  assert.throws(() => assertFinancialWritesEnabled(), /Preview.*solo lectura/);
+  const adapterSource = readFileSync("src/web3/TENIOFragmentConnection.js", "utf8");
+  const configSource = readFileSync("vite.config.js", "utf8");
+  assert.match(adapterSource, /getWriteContract[\s\S]*?assertFinancialWritesEnabled\(\)/);
+  assert.match(configSource, /process\.env\.VERCEL_ENV !== 'production'/);
+});
