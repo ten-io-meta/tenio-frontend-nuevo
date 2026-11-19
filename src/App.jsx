@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { ethers } from "ethers";
-import ABI from "./web3/ABI.json";
 import {
   __env,
   getHeroVideoHttp,
@@ -16,6 +14,8 @@ import {
   addToMetamask,
   withdrawAllSurplus,
   withdrawSurplus,
+  getLegacyOwner,
+  ensureNetwork,
   hasWindowEthereum,
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
@@ -114,14 +114,16 @@ function ipfsToHttp(url) {
   return url.replace("ipfs://", "https://ipfs.io/ipfs/");
 }
 
-/* Deriva métricas coherentes desde on-chain */
+/* Missing data is UNKNOWN, never 0. */
 function deriveNumbers(s) {
-  const total = s?.maxSupply ?? 1000;
-  const burned = s?.burned ?? 0;
-  const live = s?.supplyLive ?? 0;
-  const minted = burned + live;
-  const available = total - minted;
-  return { total, burned, live, minted, available };
+  if (!s) return null;
+  return {
+    total: s.maxSupply,
+    burned: s.burned,
+    live: s.supplyLive,
+    minted: s.mintedHistoric,
+    available: s.availableToMint,
+  };
 }
 
 /* 🔁 Esperar a que modals-tenio.js esté cargado */
@@ -177,7 +179,7 @@ export default function App() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState("");
 
-  const [owned, setOwned] = useState([]);
+  const [owned, setOwned] = useState(null); // null = not verified; [] = verified empty
   const [ownedError, setOwnedError] = useState("");
 
   const [minting, setMinting] = useState(false);
@@ -222,85 +224,83 @@ export default function App() {
     };
   }, []);
 
-  /* Carga inicial cuando cambia contrato o cuenta */
+  /* Single fail-closed polling loop; discard stale results on chain/account change. */
   useEffect(() => {
-    if (!activeContract) return;
-    (async () => {
-      setLoadingStats(true);
-      setStatsError("");
-      try {
-        const s = await getStats(activeContract);
-        setStats(s);
-      } catch (e) {
-        setStatsError(e?.message || "Error loading stats.");
-      } finally {
-        setLoadingStats(false);
-      }
-
-      if (account) {
-        try {
-          setOwned(await getOwnedFragments(activeContract, account));
-          setOwnedError("");
-        } catch (e) {
-          setOwned([]);
-          setOwnedError(e?.message || "Cannot get your fragments.");
-        }
-      } else {
-        setOwned([]);
-        setOwnedError("");
-      }
-    })();
-  }, [activeContract, account]);
-
-  /* Polling cada 15s para refrescar stats/owned */
-  useEffect(() => {
-    if (!activeContract) return;
     let alive = true;
+    let inFlight = false;
+    setStats(null);
+    setOwned(null);
+    setStatsError("");
+    setOwnedError("");
+    setLoadingStats(true);
+
+    if (!activeContract) {
+      setStatsError("Red no admitida o contrato no configurado. Datos no disponibles.");
+      setLoadingStats(false);
+      return () => { alive = false; };
+    }
 
     const tick = async () => {
+      if (inFlight) return;
+      inFlight = true;
       try {
-        const s = await getStats(activeContract);
-        if (!alive) return;
-        setStats(s);
-      } catch {}
-      if (account) {
-        try {
-          const o = await getOwnedFragments(activeContract, account);
-          if (!alive) return;
-          setOwned(o);
-        } catch {}
+        const verified = await getStats(activeContract);
+        if (alive) {
+          setStats(verified);
+          setStatsError("");
+        }
+      } catch (error) {
+        if (alive) {
+          setStats(null);
+          setStatsError(error?.message || "No se pudieron verificar las estadísticas.");
+        }
       }
-    };
 
-    const id = setInterval(tick, 15000);
+      if (!account) {
+        if (alive) {
+          setOwned([]);
+          setOwnedError("");
+        }
+      } else {
+        try {
+          const ids = await getOwnedFragments(activeContract, account);
+          if (alive) {
+            setOwned(ids);
+            setOwnedError("");
+          }
+        } catch (error) {
+          if (alive) {
+            setOwned(null);
+            setOwnedError(error?.message || "No se pudo verificar la titularidad.");
+          }
+        }
+      }
+      if (alive) setLoadingStats(false);
+      inFlight = false;
+    };
     tick();
+    const timer = setInterval(tick, 15000);
     return () => {
       alive = false;
-      clearInterval(id);
+      clearInterval(timer);
     };
-  }, [activeContract, account]);
+  }, [activeContract, account, chainId]);
 
-  /* detectar owner on-chain (Ownable.owner()) */
+  /* Legacy-only owner panel. Never infer owner on ERC-8060 contracts. */
   useEffect(() => {
-    (async () => {
-      try {
-        if (!activeContract || !account || !hasWindowEthereum()) {
-          setIsOwner(false);
-          return;
-        }
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const contract = new ethers.Contract(
-          activeContract,
-          ABI,
-          await provider
-        );
-        const ownerAddr = await contract.owner();
-        setIsOwner(ownerAddr?.toLowerCase() === account?.toLowerCase());
-      } catch {
-        setIsOwner(false);
-      }
-    })();
-  }, [activeContract, account]);
+    let alive = true;
+    setIsOwner(false);
+    if (activeContract && account) {
+      getLegacyOwner(activeContract)
+        .then((ownerAddr) => {
+          if (alive) setIsOwner(ownerAddr.toLowerCase() === account.toLowerCase());
+        })
+        .catch(() => {
+          if (alive) setIsOwner(false);
+        });
+    }
+    return () => { alive = false; };
+  }, [activeContract, account, chainId]);
 
   const derived = useMemo(() => deriveNumbers(stats), [stats]);
 
@@ -316,13 +316,25 @@ export default function App() {
     }
   };
 
-  const handleUseSepolia = () => setForceNet("sepolia");
-  const handleUseMainnet = () => setForceNet("mainnet");
+  const selectNetwork = async (network) => {
+    try {
+      // Only a deliberate click can ask MetaMask to switch; polling never does.
+      await ensureNetwork(network);
+      setForceNet(network);
+      setChainId(await getChainId());
+    } catch (e) {
+      setStats(null);
+      setOwned(null);
+      setStatsError(e?.message || "Red no disponible.");
+    }
+  };
+  const handleUseSepolia = () => selectNetwork("sepolia");
+  const handleUseMainnet = () => selectNetwork("mainnet");
 
   // siguiente número visual
   const nextMintNumber = useMemo(() => {
-    return derived.minted + 1 + (counterOffset || 0);
-  }, [derived.minted, counterOffset]);
+    return derived ? derived.minted + 1 + (counterOffset || 0) : null;
+  }, [derived, counterOffset]);
 
   // Helpers idioma y red para los modales
   function currentNetworkName() {
@@ -343,7 +355,7 @@ export default function App() {
       const beforeStats = await getStats(activeContract);
       const beforeMinted =
         beforeStats?.mintedHistoric ??
-        (beforeStats?.minted ?? derived.minted);
+        (beforeStats?.minted ?? derived?.minted);
 
       const receipt = await mintNext(activeContract, "metadata.json");
 
@@ -355,7 +367,7 @@ export default function App() {
 
       const tokenId =
         (afterStats?.mintedHistoric ??
-          (afterStats?.minted ?? derived.minted + 1)) ||
+          (afterStats?.minted ?? derived?.minted + 1)) ||
         beforeMinted + 1;
 
       const txHash = receipt?.hash || receipt?.transactionHash || "";
@@ -389,7 +401,7 @@ export default function App() {
       }
 
       const txHash = receipt?.hash || receipt?.transactionHash || "";
-      const refundEth = afterStats?.burnRefund ?? stats?.burnRefund ?? 0;
+      const refundEth = afterStats.burnRefund;
 
       // ✅ esperamos a que modals-tenio.js esté listo
       await waitForModalsReady();
@@ -411,7 +423,7 @@ export default function App() {
 
   const handleBurn = async () => {
     const id = Number(burnId);
-    if (!id || Number.isNaN(id)) return;
+    if (!Number.isSafeInteger(id) || id <= 0 || !stats || statsError) return;
 
     setBurning(true);
 
@@ -457,7 +469,7 @@ export default function App() {
 
   const handleWithdrawPartial = async () => {
     const amt = Number(withdrawPartialAmt);
-    if (!amt || Number.isNaN(amt)) return;
+    if (!Number.isFinite(amt) || amt <= 0 || !stats || statsError) return;
     try {
       setWithdrawing(true);
       await withdrawSurplus(activeContract, amt);
@@ -521,6 +533,7 @@ export default function App() {
             {connected ? tr.connectedYes(account) : tr.connectedNo}
           </div>
 
+          <div className="note">UMBRAL V2 HISTÓRICO · No es ERC-8060 estricto · Sin migración</div>
           <div className="addr">{activeContract || "<sin contrato>"}</div>
 
                     <div className="row">
@@ -542,32 +555,32 @@ export default function App() {
 </div>
           <div className="stats">
             <div>
-              <b>{tr.statsTotal}:</b> {derived.total}
+              <b>{tr.statsTotal}:</b> {derived?.total ?? "—"}
             </div>
             <div>
-              🧮 <b>{tr.statsMintedHist}:</b> {derived.minted}
+              🧮 <b>{tr.statsMintedHist}:</b> {derived?.minted ?? "—"}
             </div>
             <div>
-              ⚰️ <b>{tr.statsBurned}:</b> {derived.burned}
+              ⚰️ <b>{tr.statsBurned}:</b> {derived?.burned ?? "—"}
             </div>
             <div>
-              💎 <b>{tr.statsLive}:</b> {derived.live}
+              💎 <b>{tr.statsLive}:</b> {derived?.live ?? "—"}
             </div>
             <div>
-              🪙 <b>{tr.statsAvail}:</b> {derived.available}
+              🪙 <b>{tr.statsAvail}:</b> {derived?.available ?? "—"}
             </div>
 
             <div className="mt8">
-              <b>{tr.mintPrice}:</b> {stats?.mintPrice ?? 0} ETH + gas
+              <b>{tr.mintPrice}:</b> {stats?.mintPrice ?? "—"} ETH + gas
             </div>
             <div>
-              <b>{tr.burnRefund}:</b> {stats?.burnRefund ?? 0} ETH
+              <b>{tr.burnRefund}:</b> {stats?.burnRefund ?? "—"} ETH
             </div>
 
-            {isOwner && (
+            {isOwner && stats && !statsError && (
               <div>
                 <b>{tr.withdrawable}:</b>{" "}
-                {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH
+                {stats ? stats.withdrawableEth.toFixed(3) : "—"} ETH
               </div>
             )}
 
@@ -576,8 +589,8 @@ export default function App() {
           </div>
 
           <div className="row">
-            <button onClick={handleMint} disabled={minting || !connected}>
-              {minting ? tr.minting : tr.mintAction(nextMintNumber)}
+            <button onClick={handleMint} disabled={minting || !connected || !stats || !!statsError}>
+              {minting ? tr.minting : tr.mintAction(nextMintNumber ?? "—")}
             </button>
           </div>
 
@@ -587,7 +600,7 @@ export default function App() {
               value={burnId}
               onChange={(e) => setBurnId(e.target.value)}
             />
-            <button onClick={handleBurn} disabled={burning || !connected}>
+            <button onClick={handleBurn} disabled={burning || !connected || !stats || !!statsError}>
               {burning ? tr.burning : tr.burnBtn}
             </button>
           </div>
@@ -598,11 +611,11 @@ export default function App() {
 
           <div className="owned">
             <div>
-              <b>{tr.yourFrags(owned.length)}</b>
+              <b>{owned === null ? "Tus fragmentos: no verificables" : tr.yourFrags(owned.length)}</b>
             </div>
-            {owned.length === 0 ? (
+            {owned !== null && owned.length === 0 ? (
               <div className="muted">{tr.noFrags}</div>
-            ) : (
+            ) : owned !== null ? (
               <ul>
                 {owned.map((id) => (
                   <li key={id}>
@@ -613,7 +626,7 @@ export default function App() {
                   </li>
                 ))}
               </ul>
-            )}
+            ) : null}
             {ownedError && <div className="warn">{ownedError}</div>}
           </div>
 
