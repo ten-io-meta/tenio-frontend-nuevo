@@ -9,7 +9,7 @@ export function explainChainReadError(error, lang = "es", ownerList = false) {
     category = "inconsistent";
   else if (/runtime unverified|executable does not match|unverified contract|codehash/.test(technical))
     category = "runtime";
-  else if (/wrong wallet network|wrong network|network.address|unsupported chain/.test(technical))
+  else if (/wrong wallet network|wrong network|network.address|unsupported chain|cambia la red en metamask/.test(technical))
     category = "network";
 
   const messages = {
