@@ -131,11 +131,9 @@ async function runCase(name,fn) {
 let server,browser;
 try {
   const runtime=await verifiedRuntime();
-  server=spawn("npm",["run","dev","--","--host","127.0.0.1","--port","4173","--strictPort"],{
-    stdio:["ignore","pipe","pipe"],env:{...process.env,CI:"true"}
+  server=spawn(process.execPath,["node_modules/vite/bin/vite.js","--host","127.0.0.1","--port","4173","--strictPort"],{
+    stdio:["ignore","ignore","ignore"],env:{...process.env,CI:"true"}
   });
-  server.stdout.on("data",()=>{});
-  server.stderr.on("data",chunk=>process.stderr.write(chunk));
   await waitForLocalServer(server);
   browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
 
@@ -222,5 +220,5 @@ try {
   process.exitCode=1;
 } finally {
   if(browser)await browser.close();
-  if(server)server.kill("SIGTERM");
+  if(server && server.exitCode===null)server.kill("SIGTERM");
 }
