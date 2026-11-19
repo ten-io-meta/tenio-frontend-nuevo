@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   playwright-ui:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
       - name: Install pinned project dependencies
         run: npm ci
       - name: Install standalone browser test runner without changing package-lock
-        run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.1
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.65.1
       - name: Install isolated Chromium browser for EIP-1193 mock
         run: npx playwright install --with-deps chromium
       - name: Run browser scenarios with fake wallet and blocked transaction methods
