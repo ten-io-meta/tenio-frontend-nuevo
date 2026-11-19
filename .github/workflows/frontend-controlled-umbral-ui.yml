@@ -21,4 +21,4 @@ jobs:
       - name: Install isolated Chromium browser for EIP-1193 mock
         run: npx playwright install --with-deps chromium
       - name: Run browser scenarios with fake wallet and blocked transaction methods
-        run: node tests/controlled-umbral-ui.mjs
+        run: timeout --signal=KILL 180s node tests/controlled-umbral-ui.mjs
