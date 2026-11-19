@@ -178,9 +178,10 @@ try {
     const page=await preparePage(browser,state,runtime);
     await waitText(page,"Tus fragmentos (2)");
     const panel=await page.locator(".stats").innerText();
-    assert.match(panel,/0\.086/);
-    assert.match(panel,/0\.07/);
-    assert.match(panel,/7/);
+    assert.match(panel,/0\.012/);
+    assert.match(panel,/0\.01/);
+    assert.match(panel,/Vivos \(holders\):\s*7/);
+    assert.equal(state.calls.includes("eth_getBalance"),true);
     assert.equal(await page.getByText("UMBRAL V2 HISTÓRICO", {exact:false}).count(),1);
     assert.equal(await page.locator(".addr").innerText(),contract);
     assert.equal(await page.locator(".owner").count(),0);
