@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 import { Interface, keccak256, parseEther, toBeHex } from "ethers";
 
@@ -136,13 +136,16 @@ try {
   });
   await waitForLocalServer(server);
   browser=await chromium.launch({channel:"chrome",headless:true,args:["--no-sandbox"]});
+  mkdirSync("audit-results/browser", {recursive:true});
 
   await runCase("NO_WALLET_UNKNOWN_NOT_ZERO",async()=>{
     const page=await preparePage(browser,null,runtime);
     await waitText(page,"Red no admitida");
     assert.match(await page.locator(".stats").innerText(),/—/);
     assert.equal((await page.locator(".owned").innerText()).includes("No tienes fragmentos"),false);
-    await assertControlsOff(page);await page.close();
+    await assertControlsOff(page);
+    await page.screenshot({path:"audit-results/browser/disconnected-wallet.png",fullPage:true});
+    await page.close();
   });
 
   await runCase("UNSUPPORTED_CHAIN_NO_IMPLICIT_SWITCH",async()=>{
@@ -168,7 +171,9 @@ try {
     await page.locator(".warn").first().waitFor({timeout:12000});
     assert.match(await page.locator(".stats").innerText(),/—/);
     await assertControlsOff(page);
-    assert.equal(state.switches,0);assert.equal(state.writes,0);await page.close();
+    assert.equal(state.switches,0);assert.equal(state.writes,0);
+    await page.screenshot({path:"audit-results/browser/rpc-unavailable.png",fullPage:true});
+    await page.close();
   });
 
   await runCase("VERIFIED_LEGACY_UI_NO_ERC8060_REPOINT",async()=>{
@@ -185,6 +190,7 @@ try {
     assert.equal(await page.locator(".owner").count(),0);
     assert.equal(await page.getByRole("button",{name:/mintear fragmento/i}).isEnabled(),true);
     assert.equal(state.switches,0);assert.equal(state.writes,0);
+    await page.screenshot({path:"audit-results/browser/verified-historical-nfts.png",fullPage:true});
 
     state.accounts=[];
     await page.evaluate(()=>window.ethereum.emit("accountsChanged",[]));
