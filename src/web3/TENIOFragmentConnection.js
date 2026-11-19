@@ -1,25 +1,14 @@
-// Protege el provider para que MetaMask no se pelee con otras extensiones
-if (typeof window !== "undefined" && window.ethereum) {
-  try {
-    Object.defineProperty(window, "ethereum", {
-      configurable: true,
-      writable: false,
-      value: window.ethereum
-    });
-  } catch (e) {
-    console.warn("Ethereum provider conflict ignored:", e);
-  }
-}
-
 // TENIOFragmentConnection.js
 // v7.3 – añade post-mint modal + protección provider + helpers red/tokenId
 // Mantiene toda la lógica anterior (stats, burn, withdraw, etc.)
 
-import { BrowserProvider, Contract, formatEther, parseEther } from "ethers";
+import { BrowserProvider, Contract, parseEther } from "ethers";
+import { legacyDeploymentForAddress, verifyLegacyReader, readLegacyStats, readLegacyOwned } from "./legacyUmbralV2.js";
 import ABI from "./UmbralFragment.json";
 
 // ---------- ENV ----------
-const FIXED_ADDR   = import.meta.env.VITE_CONTRACT_ADDRESS?.trim();
+// Historical legacy addresses MUST be chain-pinned; ignore VITE_CONTRACT_ADDRESS overrides.
+const FIXED_ADDR = null;
 const ADDR_SEPOLIA = import.meta.env.VITE_CONTRACT_SEPOLIA?.trim();
 const ADDR_MAINNET = import.meta.env.VITE_CONTRACT_MAINNET?.trim();
 
@@ -30,20 +19,6 @@ const DEFAULT_IMAGE_IPFS = import.meta.env.VITE_DEFAULT_NFT_IMAGE_IPFS?.trim();
 const VIDEO_IPFS         = import.meta.env.VITE_UMBRAL_VIDEO_IPFS?.trim();
 
 // ---------- Utils ----------
-const toNum = (v, d = 0) => {
-  try {
-    if (typeof v === "bigint") return Number(v);
-    if (typeof v === "number") return Number.isFinite(v) ? v : d;
-    if (v == null) return d;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : d;
-  } catch {
-    return d;
-  }
-};
-
-const clampMin = (x, m = 0) => (x < m ? m : x);
-
 function ipfsPath(ipfsUrl) {
   if (!ipfsUrl) return "";
   return ipfsUrl.startsWith("ipfs://") ? ipfsUrl.slice(7) : ipfsUrl;
@@ -171,14 +146,13 @@ export async function ensureNetwork(expected /* "sepolia" | "mainnet" */) {
 
 // ---------- Dirección activa por red ----------
 export function getActiveAddressFromChain(chainIdHex, explicit = null) {
-  if (FIXED_ADDR) return FIXED_ADDR;
   if (explicit === "sepolia") return ADDR_SEPOLIA;
   if (explicit === "mainnet") return ADDR_MAINNET;
 
   const hex = (chainIdHex || "").toLowerCase();
   if (hex === "0xaa36a7") return ADDR_SEPOLIA;
-  if (hex === "0x1")      return ADDR_MAINNET;
-  return ADDR_SEPOLIA;
+  if (hex === "0x1") return ADDR_MAINNET;
+  return null; // unsupported/unknown network: never silently assume Sepolia
 }
 
 // ---------- Offsets ----------
@@ -191,164 +165,51 @@ export function getCounterOffset(chainIdHex, explicit = null) {
   return 0;
 }
 
-function visualOffset(activeAddr, chainIdHex, explicit) {
-  if (explicit === "sepolia") return OFFSET_SEPOLIA;
-  if (explicit === "mainnet") return OFFSET_MAINNET;
-
-  const a = (activeAddr || "").toLowerCase();
-  if (ADDR_SEPOLIA && a === (ADDR_SEPOLIA || "").toLowerCase()) return OFFSET_SEPOLIA;
-  if (ADDR_MAINNET && a === (ADDR_MAINNET || "").toLowerCase()) return OFFSET_MAINNET;
-
-  const hex = (chainIdHex || "").toLowerCase();
-  if (hex === "0xaa36a7") return OFFSET_SEPOLIA;
-  if (hex === "0x1")      return OFFSET_MAINNET;
-  return 0;
+function requireAddress(addr) {
+  return legacyDeploymentForAddress(addr).address;
 }
 
-function requireAddress(addr, label = "contract") {
-  if (
-    !addr ||
-    addr === "0x0000000000000000000000000000000000000000"
-  ) {
-    throw new Error(`Falta dirección de ${label}`);
-  }
-  return addr;
-}
-
-// ---------- Instancias (LECTURAS ahora también aseguran red) ----------
+// ---------- Verified historical Umbral V2; NOT a generic ERC-8060 adapter ----------
 export async function getReadContract(activeAddr, expectedNet = null) {
-  requireAddress(activeAddr);
-  if (!hasWindowEthereum()) throw new Error("No provider");
-  if (expectedNet) await ensureNetwork(expectedNet);
+  const verifiedAddress = requireAddress(activeAddr);
+  if (!hasWindowEthereum()) throw new Error("No Ethereum provider available");
+  const deployment = legacyDeploymentForAddress(verifiedAddress);
+  if (expectedNet && deployment.chainId !== (expectedNet === "mainnet" ? 1n : 11155111n)) {
+    throw new Error("Umbral V2: network/address selection mismatch");
+  }
   const provider = new BrowserProvider(window.ethereum);
-  return new Contract(activeAddr, ABI, await provider);
+  await verifyLegacyReader(provider, verifiedAddress);
+  return new Contract(verifiedAddress, ABI, provider);
 }
 
 export async function getWriteContract(activeAddr, explicitExpected = null) {
-  requireAddress(activeAddr);
-  if (!hasWindowEthereum()) throw new Error("No provider");
-  const inferred = inferExpectedNetworkFromAddress(activeAddr);
-  await ensureNetwork(explicitExpected || inferred);
-  const browser = new BrowserProvider(window.ethereum);
-  const signer  = await browser.getSigner();
-  return new Contract(activeAddr, ABI, signer);
+  const verifiedAddress = requireAddress(activeAddr);
+  if (!hasWindowEthereum()) throw new Error("No Ethereum provider available");
+  const inferred = inferExpectedNetworkFromAddress(verifiedAddress);
+  await ensureNetwork(explicitExpected || inferred); // only called during an explicit transaction
+  const provider = new BrowserProvider(window.ethereum);
+  await verifyLegacyReader(provider, verifiedAddress);
+  const signer = await provider.getSigner();
+  return new Contract(verifiedAddress, ABI, signer);
 }
 
-// ---------- Fallback: conteo por eventos ----------
-async function countMintsViaEvents(contract) {
-  try {
-    // Transfer(from=0x0 → to=buyer) es el mint
-    const filter = contract.filters.Transfer(
-      "0x0000000000000000000000000000000000000000"
-    );
-    const events = await contract.queryFilter(filter, 0, "latest");
-    return events.length;
-  } catch {
-    return null;
-  }
+export async function getStats(activeAddr) {
+  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
+  return readLegacyStats(c, c.runner, activeAddr);
 }
 
-// ---------- Lecturas ----------
-export async function getStats(activeAddr, chainIdHex = null, explicit = null) {
-  const expected = explicit || inferExpectedNetworkFromAddress(activeAddr);
-  const c = await getReadContract(activeAddr, expected);
-
-  const [
-    totalSupplyRaw,
-    mintPriceRaw,
-    burnRefundRaw,
-    maxSupplyRaw,
-    requiredReserveRaw,
-    contractEthBalanceRaw,
-  ] = await Promise.all([
-    c.totalSupply?.().catch(() => 0n),
-    c.MINT_PRICE?.().catch(() => 0n),
-    c.BURN_REFUND?.().catch(() => 0n),
-    c.MAX_SUPPLY?.().catch(() => 1000n),
-    c.requiredReserve?.().catch?.(() => 0n) ?? 0n,
-    (async () => {
-      try {
-        const addr = await c.getAddress();
-        const p = new BrowserProvider(window.ethereum);
-        return await p.getBalance(addr);
-      } catch {
-        return 0n;
-      }
-    })(),
-  ]);
-
-  let mintedHistoric = 0;
-  try {
-    const next =
-      (await c._nextId?.().catch(() => null)) ??
-      (await c.nextId?.().catch(() => null)) ??
-      (await c.mintedEver?.().catch(() => null));
-    if (next != null) {
-      mintedHistoric = toNum(next) - 1;
-    } else {
-      const byEvents = await countMintsViaEvents(c);
-      mintedHistoric =
-        byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
-    }
-  } catch {
-    const byEvents = await countMintsViaEvents(c);
-    mintedHistoric =
-      byEvents != null ? toNum(byEvents) : toNum(totalSupplyRaw);
-  }
-  mintedHistoric = clampMin(toNum(mintedHistoric, 0));
-
-  const vivos        = clampMin(toNum(totalSupplyRaw, 0));
-  const burned       = mintedHistoric >= vivos ? mintedHistoric - vivos : 0;
-  const requiredEth  = toNum(Number(formatEther(requiredReserveRaw || 0n)), 0);
-  const balanceEth   = toNum(Number(formatEther(contractEthBalanceRaw || 0n)), 0);
-  const maxSupply    = clampMin(toNum(maxSupplyRaw, 1000));
-  const excess       = clampMin(balanceEth - requiredEth, 0);
-
-  const offset            = visualOffset(activeAddr, chainIdHex, explicit);
-  const histWithOffset    = clampMin(mintedHistoric + offset, 0);
-  const available         = clampMin(maxSupply - histWithOffset, 0);
-
-  return {
-    address: activeAddr,
-    maxSupply,
-    mintedHistoric: histWithOffset,
-    supplyLive: vivos,
-    burned,
-    mintPrice: toNum(Number(formatEther(mintPriceRaw || 0n)), 0),
-    burnRefund: toNum(Number(formatEther(burnRefundRaw || 0n)), 0),
-    requiredReserveEth: requiredEth,
-    contractBalanceEth: balanceEth,
-    withdrawableEth: excess,
-    availableToMint: available,
-  };
-}
-
-// ---------- Owned / URI ----------
 export async function getOwnedFragments(activeAddr, ownerAddr) {
-  const c = await getReadContract(
-    activeAddr,
-    inferExpectedNetworkFromAddress(activeAddr)
-  );
-  const balance = toNum(
-    await c.balanceOf(ownerAddr).catch(() => 0n),
-    0
-  );
-  const ids = [];
-  for (let i = 0; i < balance; i++) {
-    try {
-      ids.push(
-        toNum(await c.tokenOfOwnerByIndex(ownerAddr, i), 0)
-      );
-    } catch {}
-  }
-  return ids;
+  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
+  return readLegacyOwned(c, c.runner, activeAddr, ownerAddr);
+}
+
+export async function getLegacyOwner(activeAddr) {
+  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
+  return await c.owner();
 }
 
 export async function getTokenURI(activeAddr, tokenId) {
-  const c = await getReadContract(
-    activeAddr,
-    inferExpectedNetworkFromAddress(activeAddr)
-  );
+  const c = await getReadContract(activeAddr, inferExpectedNetworkFromAddress(activeAddr));
   return await c.tokenURI(tokenId);
 }
 
