@@ -160,7 +160,7 @@ try {
   await runCase("WRONG_RUNTIME_FAIL_CLOSED",async()=>{
     const state=scenario({mode:"unverified"});
     const page=await preparePage(browser,state,runtime);
-    await waitText(page,"runtime unverified");
+    await waitText(page,"El código del contrato no coincide");
     await assertControlsOff(page);
     assert.equal(state.writes,0);await page.close();
   });
@@ -203,7 +203,7 @@ try {
   await runCase("INSOLVENT_SNAPSHOT_BLOCKS_FINANCIAL_ACTIONS",async()=>{
     const state=scenario({mode:"insolvent"});
     const page=await preparePage(browser,state,runtime);
-    await waitText(page,"insufficient reserve");
+    await waitText(page,"Reserva insuficiente detectada");
     await assertControlsOff(page);
     assert.equal(state.writes,0);await page.close();
   });
@@ -214,7 +214,7 @@ try {
     await waitText(page,"Tus fragmentos (2)");
     assert.equal(state.switches,0);
     await page.getByRole("button",{name:"Usar Sepolia"}).click();
-    await waitText(page,"Cambia la red en MetaMask");
+    await waitText(page,"Red de wallet incorrecta");
     assert.equal(state.switches,1);
     assert.equal(state.writes,0);
     await page.close();
