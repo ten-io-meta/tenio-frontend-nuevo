@@ -269,9 +269,9 @@ function getStrings(lang) {
 
       // burn complete
       burnDoneTitleSepolia: "Quema confirmada en Sepolia",
-      burnDoneIntroSepolia: "Esto se ha ejecutado en red de prueba (Sepolia).",
+      burnDoneIntroSepolia: "Se ha ejecutado una transacción real en la red pública de pruebas Sepolia.",
       burnDoneExplainSepolia:
-        "El NFT de prueba se ha quemado en Sepolia sin riesgo económico.",
+        "El NFT se ha quemado en Sepolia y el cambio es irreversible en esa red.",
       burnDoneTitleMainnet: "Quema confirmada",
       burnDoneIntroMainnet:
         "Tu fragmento ha sido quemado y retirado del suministro.",
@@ -287,8 +287,7 @@ function getStrings(lang) {
       burnShareTextMainnet: (id, refund, url) =>
         `He quemado el fragmento #${id} de EL UMBRAL (TEN.IO).\nRefund ${refund ?? "—"} ETH\n${url}`,
       burnBodySepolia:
-        "La quema se ha registrado realmente en Sepolia, " +
-        "y quema, sin poner ETH en riesgo.",
+        "La quema se ha registrado realmente en Sepolia, sin afectar a Ethereum Mainnet.",
       burnBodyMainnet:
         "Este fragmento contenía ETH embebido y vivía como contrato dentro de Ethereum.",
 
@@ -381,9 +380,9 @@ function getStrings(lang) {
 
       // burn complete
       burnDoneTitleSepolia: "Burn confirmed on Sepolia",
-      burnDoneIntroSepolia: "This was executed on a test network (Sepolia).",
+      burnDoneIntroSepolia: "This was a real transaction on the public Sepolia test network.",
       burnDoneExplainSepolia:
-        "The testnet NFT was burned on Sepolia with no economic risk.",
+        "The NFT was burned on Sepolia and the action is irreversible there.",
       burnDoneTitleMainnet: "Burn confirmed",
       burnDoneIntroMainnet:
         "Your fragment has been burned and removed from supply.",
@@ -399,8 +398,7 @@ function getStrings(lang) {
       burnShareTextMainnet: (id, refund, url) =>
         `I burned fragment #${id} from THE THRESHOLD (TEN.IO).\nRefund ${refund ?? "—"} ETH\n${url}`,
       burnBodySepolia:
-        "The burn was recorded on Sepolia testnet, " +
-        "without putting ETH at risk.",
+        "The burn was recorded on Sepolia testnet, without affecting Ethereum Mainnet.",
       burnBodyMainnet:
         "This fragment contained embedded ETH and lived as a contract inside Ethereum.",
 
