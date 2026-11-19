@@ -18,6 +18,7 @@ import {
   hasWindowEthereum,
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
+import { explainChainReadError } from "./web3/explainChainReadError.js";
 
 /* ---------- i18n ---------- */
 const T = {
@@ -253,7 +254,7 @@ export default function App() {
       } catch (error) {
         if (alive) {
           setStats(null);
-          setStatsError(error?.message || "No se pudieron verificar las estadísticas.");
+          setStatsError(explainChainReadError(error, lang));
         }
       }
 
@@ -272,7 +273,7 @@ export default function App() {
         } catch (error) {
           if (alive) {
             setOwned(null);
-            setOwnedError(error?.message || "No se pudo verificar la titularidad.");
+            setOwnedError(explainChainReadError(error, lang, true));
           }
         }
       }
@@ -285,7 +286,7 @@ export default function App() {
       alive = false;
       clearInterval(timer);
     };
-  }, [activeContract, account, chainId]);
+  }, [activeContract, account, chainId, lang]);
 
   /* Legacy-only owner panel. Never infer owner on ERC-8060 contracts. */
   useEffect(() => {
@@ -326,7 +327,7 @@ export default function App() {
     } catch (e) {
       setStats(null);
       setOwned(null);
-      setStatsError(e?.message || "Red no disponible.");
+      setStatsError(explainChainReadError(e, lang));
     }
   };
   const handleUseSepolia = () => selectNetwork("sepolia");
