@@ -1,0 +1,30 @@
+name: Verify frontend legacy deployments (read only)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned frontend dependencies
+        run: npm ci
+      - name: Audit configured deployment code and ABI
+        run: node scripts/audit-frontend-contracts.cjs
+      - name: Upload provenance even if result is inconclusive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tenio-frontend-legacy-deployments
+          path: audit-results/frontend-legacy-contracts.json
+          if-no-files-found: warn
