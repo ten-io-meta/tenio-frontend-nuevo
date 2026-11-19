@@ -41,6 +41,9 @@ export async function verifyLegacyReader(provider, address) {
 }
 
 function asBigInt(value, label) {
+  if (value === null || value === undefined || value === "" || typeof value === "boolean") {
+    throw new Error("Umbral V2: missing or invalid " + label);
+  }
   try {
     const number = BigInt(value);
     if (number < 0n) throw new Error("negative");
