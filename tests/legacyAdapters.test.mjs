@@ -111,3 +111,16 @@ test("inconsistent reserves and wrong runtime have actionable and distinct messa
   assert.match(explainChainReadError(new Error("wrong wallet network"), "en"), /Wrong wallet network/);
   assert.match(explainChainReadError(new Error("unknown"), "es", true), /titularidad|qué NFT/);
 });
+
+test("Sepolia mint and burn modals must not describe a real onchain action as simulation", () => {
+  const source = readFileSync("public/modals-tenio.js", "utf8");
+  assert.match(source, /Mint confirmado en Sepolia/);
+  assert.match(source, /Mint confirmed on Sepolia testnet/);
+  assert.match(source, /Vas a quemar un NFT en Sepolia/);
+  assert.equal(source.includes("Simulación completada."), false);
+  assert.equal(source.includes("Simulation complete."), false);
+  assert.equal(source.includes("Vas a simular la quema"), false);
+  assert.equal(source.includes("You are about to simulate a burn"), false);
+  assert.equal(source.includes("Esta es una simulación en una red pública de pruebas"), false);
+  assert.equal(source.includes("This is a simulation on a public test network"), false);
+});
