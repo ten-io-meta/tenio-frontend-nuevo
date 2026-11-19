@@ -1,0 +1,27 @@
+name: Frontend dependency vulnerability triage (read-only)
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install exactly locked frontend dependencies
+        run: npm ci
+      - name: Compare full lockfile to production-only graph
+        run: node scripts/audit-frontend-dependencies.cjs
+      - name: Upload detailed security findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dependency-security-review
+          path: audit-results/frontend-dependency-audit.json
+          if-no-files-found: warn
