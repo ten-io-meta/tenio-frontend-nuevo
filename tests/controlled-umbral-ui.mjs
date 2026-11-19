@@ -119,10 +119,10 @@ async function preparePage(browser,state,runtime) {
 async function waitText(page,text) {
   await page.waitForFunction(value=>document.body.innerText.includes(value),text,{timeout:13000});
 }
-async function assertControlsOff(page) {
+async function assertControlsOff(page, ownerVisible = false) {
   assert.equal(await page.getByRole("button",{name:/mintear fragmento/i}).isDisabled(),true);
   assert.equal(await page.getByRole("button",{name:"Quemar",exact:true}).isDisabled(),true);
-  assert.equal(await page.locator(".owner").count(),0);
+  assert.equal(await page.locator(".owner").count(),ownerVisible ? 1 : 0);
 }
 async function runCase(name,fn) {
   await fn();
@@ -210,7 +210,7 @@ try {
     assert.equal(await panel.count(),1);
     assert.equal(await panel.getByRole("button",{name:/Retirar excedente/}).isDisabled(),true);
     assert.equal(await panel.getByRole("button",{name:/Retirar parcial/}).isDisabled(),true);
-    await assertControlsOff(page);
+    await assertControlsOff(page, true);
     assert.equal(state.writes,0);
     await page.close();
   });
