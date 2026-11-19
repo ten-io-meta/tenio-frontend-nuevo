@@ -1,0 +1,22 @@
+name: Read-only Sepolia token 27 verification
+on:
+  pull_request:
+    paths:
+      - scripts/verify-sepolia-fragment-27.cjs
+      - .github/workflows/verify-sepolia-token27.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Read ownerOf(27), historical issuance and tokenURI from public Sepolia RPC
+        run: node scripts/verify-sepolia-fragment-27.cjs

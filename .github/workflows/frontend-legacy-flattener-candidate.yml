@@ -1,0 +1,41 @@
+name: Evaluate removing unused legacy flattener (no push)
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Evaluate tested ethers + ws candidate and removal of unused truffle-flattener
+        run: |
+          npm install ethers@6.17.0 --save --save-exact --package-lock-only --ignore-scripts --no-audit
+          npm update ws --package-lock-only --ignore-scripts --no-audit
+          npm uninstall truffle-flattener --save-dev --package-lock-only --ignore-scripts --no-audit
+      - name: Verify compatibility against existing application and tests
+        run: |
+          npm ci
+          node --test tests/legacyAdapters.test.mjs
+          npm run build
+          npm run lint
+      - name: Compare security findings after old flattener removal
+        run: node scripts/audit-frontend-dependencies.cjs
+      - name: Display post-removal counts
+        run: |
+          node -e "const p=require('./audit-results/frontend-dependency-audit.json');console.log('NO_FLATTENER_CANDIDATE',JSON.stringify({all:p.summaryAll,production:p.summaryProduction})); if(p.summaryProduction.total>0||p.summaryAll.critical>0)process.exitCode=2"
+      - name: Archive candidate lockfile without changing Git branch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-candidate-no-legacy-flattener
+          path: |
+            package.json
+            package-lock.json
+            audit-results/frontend-dependency-audit.json
