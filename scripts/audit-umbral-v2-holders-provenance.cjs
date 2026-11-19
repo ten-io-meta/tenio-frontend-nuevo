@@ -30,16 +30,24 @@ let counter=0;
 // JSON-RPC QUANTITY values must use minimal hexadecimal (no leading zeroes).
 function blockTag(n){return "0x"+n.toString(16);}
 function readable(error){return String(error && error.message || error).slice(0,160);}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function rpc(url,method,params,ms=13000){
-  const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),ms);
-  try {
-    const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({jsonrpc:"2.0",id:++counter,method,params}),signal:ctrl.signal});
-    if(!r.ok)throw Error("HTTP "+r.status);
-    const body=await r.json();
-    if(body.error)throw Error("RPC "+body.error.code+": "+body.error.message);
-    return body.result;
-  } finally {clearTimeout(timer);}
+  for(let attempt=0;attempt<4;attempt++){
+    const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),ms);
+    try {
+      const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({jsonrpc:"2.0",id:++counter,method,params}),signal:ctrl.signal});
+      if((r.status===429||r.status===503)&&attempt<3){
+        await pause(1000*(attempt+1));
+        continue;
+      }
+      if(!r.ok)throw Error("HTTP "+r.status);
+      const body=await r.json();
+      if(body.error)throw Error("RPC "+body.error.code+": "+body.error.message);
+      return body.result;
+    } finally {clearTimeout(timer);}
+  }
+  throw Error("RPC retries exhausted");
 }
 async function call(url,address,signature,args,tag){
   const data=iface.encodeFunctionData(signature,args);
@@ -90,6 +98,32 @@ async function survey(url,t,tag) {
   if(views.strict8060!==false)throw Error("Unexpected strict ERC8060 advertised");
   return {blockHash:block.hash,blockNo:Number.parseInt(tag,16),codehash,
     balanceWei:BigInt(balance).toString(),views,tokens};
+}
+async function explorerCreation(url,t) {
+  // Third-party explorer is ONLY a discovery hint. Validate any hash with a public
+  // onchain transaction receipt before calling it a confirmed deployment.
+  const host=t.chain==="mainnet"?"https://eth.blockscout.com":"https://eth-sepolia.blockscout.com";
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);
+  try {
+    const response=await fetch(host+"/api/v2/addresses/"+t.address,{signal:ctrl.signal});
+    if(!response.ok)throw Error("Blockscout HTTP "+response.status);
+    const info=await response.json();
+    const hash=info.creation_tx_hash||info.creation_transaction_hash;
+    if(!hash)return{status:"UNKNOWN_EXPLORER_HAS_NO_CREATION_HASH"};
+    const [receipt,tx]=await Promise.all([
+      rpc(url,"eth_getTransactionReceipt",[hash]),
+      rpc(url,"eth_getTransactionByHash",[hash])
+    ]);
+    if(receipt?.contractAddress?.toLowerCase()!==t.address.toLowerCase())
+      return{status:"UNKNOWN_EXPLORER_CLAIM_NOT_DIRECTLY_CONFIRMED",txHash:hash};
+    if(!tx || tx.to!==null)return{status:"UNKNOWN_NON_DIRECT_CREATION",txHash:hash};
+    return{status:"DIRECT_CREATE_TX_IDENTIFIED_VIA_RECEIPT",block:Number.parseInt(receipt.blockNumber,16),
+      txHash:hash,creator:tx.from,txInputBytes:(tx.input?.length-2)/2,
+      txInputHash:ethers.keccak256(tx.input),
+      note:"Proof of deploy transaction only, NOT of original solc metadata, source paths or constructor arguments"};
+  } catch(error) {
+    return{status:"UNKNOWN_EXPLORER_OR_RPC_UNAVAILABLE",error:readable(error)};
+  } finally {clearTimeout(timer);}
 }
 async function findCreation(url,t,blockNumber) {
   // eth_getCode needs archive support; any failure makes creation provenance UNKNOWN.
@@ -153,7 +187,11 @@ async function findCreation(url,t,blockNumber) {
     const matches=snapshots.length===2&&comparable[0]===comparable[1];
     const status=matches?"TWO_RPC_FULL_HOLDER_AGREEMENT":snapshots.length<2?"INCONCLUSIVE_FEWER_SUCCESSFUL_RPCS":"INCONCLUSIVE_HOLDER_DISAGREEMENT";
     if(!matches)failed=true;
-    const creation=snapshots.length?await findCreation(snapshots[0].url,t,chosenBlock):{status:"UNKNOWN_NO_SNAPSHOT"};
+    let creation=snapshots.length?await findCreation(snapshots[0].url,t,chosenBlock):{status:"UNKNOWN_NO_SNAPSHOT"};
+    if(snapshots.length && !creation.status.startsWith("DIRECT_CREATE")){
+      const hint=await explorerCreation(snapshots[0].url,t);
+      creation=hint.status==="DIRECT_CREATE_TX_IDENTIFIED_VIA_RECEIPT"?hint:{...creation,explorerHint:hint};
+    }
     report.targets.push({chain:t.chain,chainId:t.chainId,address:t.address,status,
       pinnedBlock:chosenBlock,independentProviders:snapshots.map(x=>x.url),
       snapshot:snapshots[0]?.data||null,disagreements:matches?[]:snapshots.map(x=>({url:x.url,data:x.data})),
