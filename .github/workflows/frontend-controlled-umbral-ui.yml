@@ -1,0 +1,24 @@
+name: Controlled Umbral V2 browser safety (no real wallet)
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  playwright-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned project dependencies
+        run: npm ci
+      - name: Install standalone browser test runner without changing package-lock
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.1
+      - name: Install isolated Chromium browser for EIP-1193 mock
+        run: npx playwright install --with-deps chromium
+      - name: Run browser scenarios with fake wallet and blocked transaction methods
+        run: node tests/controlled-umbral-ui.mjs
