@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  __env,
   getHeroVideoHttp,
   getChainId,
   getAccounts,
@@ -606,7 +605,7 @@ export default function App() {
           </div>
 
           <div className="note small">
-            {tr.burnNotePrefix} {stats?.burnRefund ?? 0} {tr.burnNoteSuffix}
+            {stats ? <>{tr.burnNotePrefix} {stats.burnRefund} {tr.burnNoteSuffix}</> : "Reembolso: no verificado"}
           </div>
 
           <div className="owned">
@@ -630,11 +629,11 @@ export default function App() {
             {ownedError && <div className="warn">{ownedError}</div>}
           </div>
 
-          {isOwner && (
+          {isOwner && stats && !statsError && (
             <div className="owner">
               <div className="owner-title">{tr.ownerPanel}</div>
               <div className="row">
-                <button onClick={handleWithdrawAll} disabled={withdrawing}>
+                <button onClick={handleWithdrawAll} disabled={withdrawing || !stats || !!statsError}>
                   {tr.withdrawAll}
                 </button>
                 <input
@@ -650,7 +649,7 @@ export default function App() {
                 </button>
               </div>
               <div className="muted">
-                {tr.ownerExcess}: {(stats?.withdrawableEth ?? 0).toFixed(3)} ETH
+                {tr.ownerExcess}: {stats.withdrawableEth.toFixed(3)} ETH
               </div>
             </div>
           )}
