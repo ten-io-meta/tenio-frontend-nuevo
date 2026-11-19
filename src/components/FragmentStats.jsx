@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { explainChainReadError } from "../web3/explainChainReadError.js";
 import { getStats, getOwnedFragments } from "../web3/TENIOFragmentConnection.js";
 
 // Compatibility view for LEGACY V2 only. Never infer "burned" from an RPC
@@ -31,7 +32,7 @@ export default function FragmentStats({ contractInstance, account }) {
         if (active) {
           setSnapshot(null);
           setUserCount(null);
-          setError(e?.message || "Error de lectura: datos no disponibles.");
+          setError(explainChainReadError(e, "es", true));
         }
       }
     })();
