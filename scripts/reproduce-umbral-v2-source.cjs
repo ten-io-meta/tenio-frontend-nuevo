@@ -124,5 +124,11 @@ if(originalMetadata)console.log("ORIGINAL_SOLC_METADATA "+JSON.stringify(metadat
  console.log("FINAL "+JSON.stringify({builds:attempts.length,exact:attempts.filter(x=>x.comparison.some(y=>y.exact)).length,
  executableMatch:attempts.filter(x=>x.comparison.some(y=>y.executableMatch)).length,
  chains:observations.map(x=>({chain:x.chain,twoRPCsAgree:x.twoRPCsAgree,solcCBOR:x.solcCBOR}))}));
- if(failed)process.exitCode=2;
+ const matchesBoth=observations.every(o=>attempts.some(a=>a.comparison.some(x=>x.chain===o.chain&&(x.exact||x.executableMatch))));
+ if(!matchesBoth){
+   console.error("SOURCE_MATCH_INCONCLUSIVE: no verifiable executable match on both networks");
+   process.exitCode=3;
+ } else if(failed){
+   console.warn("PARTIAL_RPC_CORROBORATION: matched both deployed runtimes but one chain had fewer than two responsive public RPCs. Do not claim independent dual-provider agreement from THIS run; see prior verified survey.");
+ }
 })().catch(e=>{console.error("AUDIT_FATAL",e.stack||String(e));process.exitCode=1});
