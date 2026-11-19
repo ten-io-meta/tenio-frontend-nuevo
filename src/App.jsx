@@ -155,7 +155,9 @@ export default function App() {
     setLang(newLang);
     try {
       localStorage.setItem("lang", newLang);
-    } catch {}
+    } catch {
+      // Language preference can remain in memory if browser storage is blocked.
+    }
   }
 
   // ---- blockchain state ----
