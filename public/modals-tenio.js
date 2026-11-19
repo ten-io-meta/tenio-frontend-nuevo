@@ -216,13 +216,13 @@ function getStrings(lang) {
 
       // Texto Sepolia (simulación)
       mintBodySepolia1:
-        "Esta es una simulación en una red pública de pruebas (Sepolia).",
+        "Esta transacción se ha ejecutado realmente en Sepolia, una red pública de pruebas.",
       mintBodySepolia2:
-        "Reproduce el proceso real de mint / colateral / quema " +
-        "sin poner ETH real en riesgo.",
+        "Se ha registrado un NFT de prueba en Sepolia, " +
+        "sin afectar al ETH ni los NFT de Ethereum Mainnet.",
       mintBodySepolia3:
-        "Si estás listo, ahora puedes hacerlo de verdad en Ethereum Mainnet.",
-      mintBodySepoliaHeader: "Simulación completada.",
+        "No es una simulación local ni una autorización para operar en Mainnet.",
+      mintBodySepoliaHeader: "Mint confirmado en Sepolia (red de pruebas).",
 
       btnDownloadCert: "Descargar certificado",
       btnSeeOnchain: "Ver on-chain",
@@ -232,17 +232,17 @@ function getStrings(lang) {
 
       // burn confirm (mainnet vs sepolia)
       burnConfirmTitleMainnet: "Vas a quemar este fragmento",
-      burnConfirmTitleSepolia: "Vas a simular la quema de este fragmento",
+      burnConfirmTitleSepolia: "Vas a quemar un NFT en Sepolia (red de pruebas)",
 
       burnConfirmIntroMainnet: (id) => `Vas a quemar el fragmento #${id}.`,
       burnConfirmIntroSepolia: (id) =>
-        `Vas a ejecutar la simulación de quema del fragmento #${id} en red de prueba.`,
+        `Vas a enviar una transacción real a Sepolia para quemar el fragmento #${id}.`,
 
       burnConfirmLabelFrag: "Fragmento:",
       burnConfirmLabelNet: "Red:",
       burnConfirmLabelAction: "Acción:",
       burnConfirmActionFinalMainnet: "Quema definitiva",
-      burnConfirmActionFinalSepolia: "Simulación de quema",
+      burnConfirmActionFinalSepolia: "Quema de NFT en Sepolia",
 
       // épico mainnet
       burnConfirmWarningMainnet1: "Esta acción es irreversible.",
@@ -255,23 +255,23 @@ function getStrings(lang) {
 
       // educativo sepolia
       burnConfirmWarningSepolia1:
-        "Esto es una simulación en una red pública de pruebas (Sepolia).",
+        "Esta quema se ejecutará en Sepolia y necesita confirmación de tu wallet.",
       burnConfirmWarningSepolia2:
-        "Nada aquí afecta al suministro real ni mueve ETH real.",
+        "El NFT de Sepolia se destruye y se mueve ETH de prueba; Mainnet no cambia.",
       burnConfirmWarningSepolia3:
-        "Esta prueba existe para que entiendas cómo funciona la quema y la recuperación de colateral.",
+        "La quema usa gas de prueba y puede devolver ETH de prueba al completarse.",
       burnConfirmWarningSepolia4:
-        "Si completas este paso, estás listo para hacerlo en Mainnet (donde sí es definitivo).",
+        "La quema en Sepolia también es irreversible en esa red.",
 
       burnConfirmQuestion: "¿Quieres continuar?",
       burnConfirmYes: "Sí, quemar",
       burnConfirmCancel: "Cancelar",
 
       // burn complete
-      burnDoneTitleSepolia: "Simulación de quema completada",
+      burnDoneTitleSepolia: "Quema confirmada en Sepolia",
       burnDoneIntroSepolia: "Esto se ha ejecutado en red de prueba (Sepolia).",
       burnDoneExplainSepolia:
-        "Esta simulación te muestra el proceso real sin riesgo económico.",
+        "El NFT de prueba se ha quemado en Sepolia sin riesgo económico.",
       burnDoneTitleMainnet: "Quema confirmada",
       burnDoneIntroMainnet:
         "Tu fragmento ha sido quemado y retirado del suministro.",
@@ -287,13 +287,13 @@ function getStrings(lang) {
       burnShareTextMainnet: (id, refund, url) =>
         `He quemado el fragmento #${id} de EL UMBRAL (TEN.IO).\nRefund ${refund ?? "—"} ETH\n${url}`,
       burnBodySepolia:
-        "Esta simulación reproduce la lógica real de mint, colateral " +
+        "La quema se ha registrado realmente en Sepolia, " +
         "y quema, sin poner ETH en riesgo.",
       burnBodyMainnet:
         "Este fragmento contenía ETH embebido y vivía como contrato dentro de Ethereum.",
 
       txtCertHeaderSepolia:
-        "TEN.IO — Simulación en red de prueba (Sepolia)",
+        "TEN.IO — Transacción real en Sepolia (red de pruebas)",
       txtCertHeaderMainnet:
         "TEN.IO / Capítulo 0 • EL UMBRAL",
       txtCertLinesMainnet1:
@@ -327,13 +327,13 @@ function getStrings(lang) {
 
       // Texto Sepolia (simulación)
       mintBodySepolia1:
-        "This is a simulation on a public test network (Sepolia).",
+        "This is a real transaction on the Sepolia public testnet.",
       mintBodySepolia2:
-        "It mimics the real mint / collateral / burn process " +
-        "without putting real ETH at risk.",
+        "The testnet NFT and collateral exist on Sepolia, " +
+        "without affecting Mainnet NFTs or ETH.",
       mintBodySepolia3:
-        "If you’re ready, you can now do it for real on Ethereum Mainnet.",
-      mintBodySepoliaHeader: "Simulation complete.",
+        "This is not a local simulation or authorization to use Mainnet.",
+      mintBodySepoliaHeader: "Mint confirmed on Sepolia testnet.",
 
       btnDownloadCert: "Download certificate",
       btnSeeOnchain: "View on-chain",
@@ -343,17 +343,17 @@ function getStrings(lang) {
 
       // burn confirm
       burnConfirmTitleMainnet: "You are about to burn this fragment",
-      burnConfirmTitleSepolia: "You are about to simulate a burn",
+      burnConfirmTitleSepolia: "You are about to burn a Sepolia testnet NFT",
 
       burnConfirmIntroMainnet: (id) => `You are about to burn fragment #${id}.`,
       burnConfirmIntroSepolia: (id) =>
-        `You are about to run a burn simulation for fragment #${id} on a test network.`,
+        `You are submitting a real Sepolia transaction to burn fragment #${id}.`,
 
       burnConfirmLabelFrag: "Fragment:",
       burnConfirmLabelNet: "Network:",
       burnConfirmLabelAction: "Action:",
       burnConfirmActionFinalMainnet: "Final burn",
-      burnConfirmActionFinalSepolia: "Burn simulation",
+      burnConfirmActionFinalSepolia: "Sepolia NFT burn",
 
       // mainnet = irreversible, solemn
       burnConfirmWarningMainnet1: "This action is irreversible.",
@@ -367,23 +367,23 @@ function getStrings(lang) {
 
       // sepolia = educational, not final
       burnConfirmWarningSepolia1:
-        "This is a simulation on a public test network (Sepolia).",
+        "This is a real transaction on the Sepolia public testnet.",
       burnConfirmWarningSepolia2:
-        "Nothing here touches real supply or moves real ETH.",
+        "This burns a Sepolia NFT and moves test ETH; Mainnet is unaffected.",
       burnConfirmWarningSepolia3:
-        "This run exists so you understand burn + collateral recovery.",
+        "This burns a testnet NFT and can return test ETH.",
       burnConfirmWarningSepolia4:
-        "If you can do this, you're ready to do it on Mainnet (where it becomes final).",
+        "Sepolia burns are irreversible on that network.",
 
       burnConfirmQuestion: "Do you want to continue?",
       burnConfirmYes: "Yes, burn",
       burnConfirmCancel: "Cancel",
 
       // burn complete
-      burnDoneTitleSepolia: "Burn simulation complete",
+      burnDoneTitleSepolia: "Burn confirmed on Sepolia",
       burnDoneIntroSepolia: "This was executed on a test network (Sepolia).",
       burnDoneExplainSepolia:
-        "This simulation shows you the real process with no economic risk.",
+        "The testnet NFT was burned on Sepolia with no economic risk.",
       burnDoneTitleMainnet: "Burn confirmed",
       burnDoneIntroMainnet:
         "Your fragment has been burned and removed from supply.",
@@ -399,13 +399,13 @@ function getStrings(lang) {
       burnShareTextMainnet: (id, refund, url) =>
         `I burned fragment #${id} from THE THRESHOLD (TEN.IO).\nRefund ${refund ?? "—"} ETH\n${url}`,
       burnBodySepolia:
-        "This simulation reproduces the real mint / collateral / burn logic " +
+        "The burn was recorded on Sepolia testnet, " +
         "without putting ETH at risk.",
       burnBodyMainnet:
         "This fragment contained embedded ETH and lived as a contract inside Ethereum.",
 
       txtCertHeaderSepolia:
-        "TEN.IO — Testnet simulation (Sepolia)",
+        "TEN.IO — Sepolia testnet transaction",
       txtCertHeaderMainnet:
         "TEN.IO / Chapter 0 • THE THRESHOLD",
       txtCertLinesMainnet1:
