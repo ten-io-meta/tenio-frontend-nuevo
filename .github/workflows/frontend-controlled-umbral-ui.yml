@@ -22,3 +22,10 @@ jobs:
         run: google-chrome --version
       - name: Run browser scenarios with fake wallet and blocked transaction methods
         run: timeout --signal=KILL 180s node tests/controlled-umbral-ui.mjs
+      - name: Preserve controlled Chromium screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbral-v2-controlled-browser-screenshots
+          path: audit-results/browser/*.png
+          if-no-files-found: warn
