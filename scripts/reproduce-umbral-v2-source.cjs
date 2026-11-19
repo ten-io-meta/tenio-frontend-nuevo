@@ -2,9 +2,11 @@
 // Read-only: compare published flattened Solidity to both observed runtimes.
 const fs=require("node:fs"), crypto=require("node:crypto"), solc=require("solc"), {ethers}=require("ethers");
 const sourceFile="contracts/UmbralFragmentV2_flat.sol";
-const source=fs.readFileSync(sourceFile,"utf8").replace(/^\uFEFF/,"");
+const raw=fs.readFileSync(sourceFile);
+const source=(raw[0]===0xff&&raw[1]===0xfe?raw.toString("utf16le"):raw.toString("utf8")).replace(/^\uFEFF/,"");
+console.log("SOURCE_ENCODING "+(raw[0]===0xff&&raw[1]===0xfe?"utf16le":"utf8")+" "+source.length+" characters");
 const targets=[
- {chain:"mainnet",chainId:1,address:"0x841c6a8e1858fd7daf25824e4d305ff06bd7a525",block:26450345,providers:["https://ethereum-rpc.publicnode.com","https://eth.drpc.org"]},
+ {chain:"mainnet",chainId:1,address:"0x841c6a8e1858fd7daf25824e4d305ff06bd7a525",block:26450345,providers:["https://ethereum-rpc.publicnode.com","https://eth.drpc.org","https://eth.llamarpc.com","https://1rpc.io/eth","https://ethereum.publicnode.com"]},
  {chain:"sepolia",chainId:11155111,address:"0x47C049d0441dae4D06fd7E8d512e4E91B7E92e77",block:12169588,providers:["https://ethereum-sepolia-rpc.publicnode.com","https://sepolia.gateway.tenderly.co","https://sepolia.drpc.org","https://1rpc.io/sepolia"]}
 ];let id=0;
 async function rpc(url,method,params){
