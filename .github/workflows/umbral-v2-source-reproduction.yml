@@ -23,10 +23,14 @@ jobs:
         run: npm install --no-save --ignore-scripts --package-lock=false solc@0.8.30
       - name: Compare flattened source against pinned Mainnet / Sepolia runtimes
         run: node scripts/reproduce-umbral-v2-source.cjs
+      - name: Decode Sepolia constructor arguments from verified creation transaction
+        run: node scripts/reconstruct-umbral-v2-constructor.cjs
       - name: Save full reproducible evidence even on inconclusive runs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: umbral-v2-source-runtime-evidence
-          path: audit-results/umbral-v2-source-match.json
+          path: |
+            audit-results/umbral-v2-source-match.json
+            audit-results/umbral-v2-sepolia-constructor.json
           if-no-files-found: warn
