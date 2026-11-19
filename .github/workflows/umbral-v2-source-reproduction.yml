@@ -1,0 +1,32 @@
+name: Reproduce deployed Umbral V2 source (read-only)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-umbral-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned repository dependencies
+        run: npm ci
+      - name: Install solc 0.8.28 for isolated source reproduction
+        run: npm install --no-save --ignore-scripts --package-lock=false solc@0.8.28
+      - name: Compare flattened source against pinned Mainnet / Sepolia runtimes
+        run: node scripts/reproduce-umbral-v2-source.cjs
+      - name: Save full reproducible evidence even on inconclusive runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbral-v2-source-runtime-evidence
+          path: audit-results/umbral-v2-source-match.json
+          if-no-files-found: warn
