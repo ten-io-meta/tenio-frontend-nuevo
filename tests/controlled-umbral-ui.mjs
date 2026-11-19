@@ -135,7 +135,7 @@ try {
     stdio:["ignore","ignore","ignore"],env:{...process.env,CI:"true"}
   });
   await waitForLocalServer(server);
-  browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
+  browser=await chromium.launch({channel:"chrome",headless:true,args:["--no-sandbox"]});
 
   await runCase("NO_WALLET_UNKNOWN_NOT_ZERO",async()=>{
     const page=await preparePage(browser,null,runtime);
