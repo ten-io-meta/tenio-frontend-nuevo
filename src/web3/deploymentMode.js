@@ -1,3 +1,4 @@
+/* global __TENIO_READ_ONLY_PREVIEW__:readonly */
 // Vercel Preview, local development and any build with unknown deployment
 // provenance are READ ONLY. Only an explicitly identified Vercel production
 // deployment can expose the historic Umbral V2 financial controls.
