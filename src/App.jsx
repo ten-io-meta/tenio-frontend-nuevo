@@ -18,6 +18,7 @@ import {
   hasWindowEthereum,
 } from "./web3/TENIOFragmentConnection";
 import "./App.css";
+import { PREVIEW_READ_ONLY } from "./web3/deploymentMode.js";
 import { explainChainReadError } from "./web3/explainChainReadError.js";
 
 /* ---------- i18n ---------- */
@@ -351,6 +352,7 @@ export default function App() {
 
   // ----- MINT -----
   const handleMint = async () => {
+    if (PREVIEW_READ_ONLY) return;
     try {
       setMinting(true);
 
@@ -393,6 +395,7 @@ export default function App() {
 
   // ----- BURN -----
   const reallyBurn = async (id) => {
+    if (PREVIEW_READ_ONLY) return;
     try {
       const receipt = await burnTx(activeContract, id);
 
@@ -458,6 +461,7 @@ export default function App() {
 
   // OWNER withdrawals
   const handleWithdrawAll = async () => {
+    if (PREVIEW_READ_ONLY) return;
     try {
       setWithdrawing(true);
       await withdrawAllSurplus(activeContract);
@@ -470,6 +474,7 @@ export default function App() {
   };
 
   const handleWithdrawPartial = async () => {
+    if (PREVIEW_READ_ONLY) return;
     const amt = Number(withdrawPartialAmt);
     if (!Number.isFinite(amt) || amt <= 0 || !stats || statsError) return;
     try {
@@ -535,6 +540,12 @@ export default function App() {
             {connected ? tr.connectedYes(account) : tr.connectedNo}
           </div>
 
+          {PREVIEW_READ_ONLY && (
+            <div className="warn" role="status">
+              PREVIEW · SOLO LECTURA — Puedes consultar NFT y conectar tu wallet, pero
+              Mintear, Quemar y Retirar están desactivados en esta versión.
+            </div>
+          )}
           <div className="note">UMBRAL V2 HISTÓRICO · No es ERC-8060 estricto · Sin migración</div>
           <div className="addr">{activeContract || "<sin contrato>"}</div>
 
@@ -591,7 +602,7 @@ export default function App() {
           </div>
 
           <div className="row">
-            <button onClick={handleMint} disabled={minting || !connected || !stats || !!statsError || owned === null || !!ownedError}>
+            <button onClick={handleMint} disabled={PREVIEW_READ_ONLY || minting || !connected || !stats || !!statsError || owned === null || !!ownedError}>
               {minting ? tr.minting : tr.mintAction(nextMintNumber ?? "—")}
             </button>
           </div>
@@ -602,7 +613,7 @@ export default function App() {
               value={burnId}
               onChange={(e) => setBurnId(e.target.value)}
             />
-            <button onClick={handleBurn} disabled={burning || !connected || !stats || !!statsError || owned === null || !!ownedError}>
+            <button onClick={handleBurn} disabled={PREVIEW_READ_ONLY || burning || !connected || !stats || !!statsError || owned === null || !!ownedError}>
               {burning ? tr.burning : tr.burnBtn}
             </button>
           </div>
@@ -636,7 +647,7 @@ export default function App() {
             <div className="owner">
               <div className="owner-title">{tr.ownerPanel}</div>
               <div className="row">
-                <button onClick={handleWithdrawAll} disabled={withdrawing || !stats || !!statsError}>
+                <button onClick={handleWithdrawAll} disabled={PREVIEW_READ_ONLY || withdrawing || !stats || !!statsError}>
                   {tr.withdrawAll}
                 </button>
                 <input
@@ -646,7 +657,7 @@ export default function App() {
                 />
                 <button
                   onClick={handleWithdrawPartial}
-                  disabled={withdrawing}
+                  disabled={PREVIEW_READ_ONLY || withdrawing || !stats || !!statsError}
                 >
                   {tr.withdrawPartialBtn}
                 </button>
