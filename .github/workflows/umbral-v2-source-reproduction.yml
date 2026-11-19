@@ -19,8 +19,8 @@ jobs:
           cache: npm
       - name: Install pinned repository dependencies
         run: npm ci
-      - name: Install solc 0.8.28 for isolated source reproduction
-        run: npm install --no-save --ignore-scripts --package-lock=false solc@0.8.28
+      - name: Install chain-metadata-identified solc 0.8.30 for source reproduction
+        run: npm install --no-save --ignore-scripts --package-lock=false solc@0.8.30
       - name: Compare flattened source against pinned Mainnet / Sepolia runtimes
         run: node scripts/reproduce-umbral-v2-source.cjs
       - name: Save full reproducible evidence even on inconclusive runs
