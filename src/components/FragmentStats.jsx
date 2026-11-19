@@ -1,54 +1,52 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { getStats, getOwnedFragments } from "../web3/TENIOFragmentConnection.js";
 
-function FragmentStats({ contractInstance, account }) {
-  const [burned, setBurned] = useState(0);
-  const [held, setHeld] = useState(0);
-  const [userCount, setUserCount] = useState(0);
-  const [remaining, setRemaining] = useState(1000); // basado en supply = 1000
+// Compatibility view for LEGACY V2 only. Never infer "burned" from an RPC
+// exception, because a timeout, unsupported getter or wrong chain is UNKNOWN.
+export default function FragmentStats({ contractInstance, account }) {
+  const [snapshot, setSnapshot] = useState(null);
+  const [userCount, setUserCount] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    async function fetchStats() {
-      if (!contractInstance || !account) return;
-
-      try {
-        const supplyBN = await contractInstance.tokenIds();
-        const minted = Number(supplyBN);
-
-        let userOwned = 0;
-        let burnedCount = 0;
-
-        for (let i = 1; i <= minted; i++) {
-          try {
-            const owner = await contractInstance.ownerOf(i);
-            if (owner.toLowerCase() === account.toLowerCase()) {
-              userOwned++;
-            }
-          } catch (error) {
-            burnedCount++; // token no existe → quemado
-          }
-        }
-
-        setUserCount(userOwned);
-        setBurned(burnedCount);
-        setHeld(minted - burnedCount);
-        setRemaining(1000 - minted);
-      } catch (err) {
-        console.error("Error obteniendo stats:", err);
-      }
+    let active = true;
+    setSnapshot(null);
+    setUserCount(null);
+    setError("");
+    const address = contractInstance?.target || contractInstance?.address;
+    if (!address) {
+      setError("Contrato no verificado: estadísticas no disponibles.");
+      return () => { active = false; };
     }
 
-    fetchStats();
+    (async () => {
+      try {
+        const stats = await getStats(address);
+        const owned = account ? await getOwnedFragments(address, account) : null;
+        if (active) {
+          setSnapshot(stats);
+          setUserCount(owned === null ? null : owned.length);
+        }
+      } catch (e) {
+        if (active) {
+          setSnapshot(null);
+          setUserCount(null);
+          setError(e?.message || "Error de lectura: datos no disponibles.");
+        }
+      }
+    })();
+    return () => { active = false; };
   }, [contractInstance, account]);
 
+  const display = (value) => value ?? "—";
   return (
     <div className="stats-column">
-      <span>🧱 Total Supply: <strong>1000</strong></span>
-      <span>🟣 Vivos tuyos: <strong>{userCount}</strong></span>
-      <span>⚰️ Quemados: <strong>{burned}</strong></span>
-      <span>💎 En manos: <strong>{held}</strong></span>
-      <span>📭 No emitidos: <strong>{remaining}</strong></span>
+      <span>🧱 Total máximo: <strong>{display(snapshot?.maxSupply)}</strong></span>
+      <span>🟣 Vivos tuyos: <strong>{display(userCount)}</strong></span>
+      <span>⚰️ Quemados: <strong>{display(snapshot?.burned)}</strong></span>
+      <span>💎 NFT vivos: <strong>{display(snapshot?.supplyLive)}</strong></span>
+      <span>📭 No emitidos: <strong>{display(snapshot?.availableToMint)}</strong></span>
+      {error && <div role="alert">{error}</div>}
     </div>
   );
 }
-
-export default FragmentStats;
