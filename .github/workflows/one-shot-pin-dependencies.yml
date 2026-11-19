@@ -1,0 +1,67 @@
+name: One-shot commit tested frontend dependency remediations
+on:
+  pull_request:
+    types: [synchronize]
+    paths:
+      - .github/workflows/one-shot-pin-dependencies.yml
+permissions:
+  contents: write
+jobs:
+  commit-tested-lock:
+    if: >-
+      github.event.pull_request.number == 5 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'audit/frontend-dependencies-ui-e2e-v1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: true
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Regenerate deterministic audited candidate
+        run: |
+          npm install ethers@6.17.0 --save --save-exact --package-lock-only --ignore-scripts --no-audit
+          npm update ws --package-lock-only --ignore-scripts --no-audit
+          npm uninstall truffle-flattener --save-dev --package-lock-only --ignore-scripts --no-audit
+          npm ci
+          node - <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json'));
+          if (pkg.dependencies.ethers !== '6.17.0' ||
+              pkg.devDependencies['truffle-flattener'] !== undefined ||
+              lock.packages['node_modules/ethers']?.version !== '6.17.0' ||
+              lock.packages['node_modules/ws']?.version !== '8.21.0' ||
+              lock.packages['node_modules/truffle-flattener']) {
+             throw Error('Dependency versions mismatch verified candidate');
+          }
+          console.log('PINNED_PACKAGES_OK ethers 6.17.0, ws 8.21.0, no truffle-flattener');
+          NODE
+      - name: Verify security, all nine regression tests, build and lint
+        run: |
+          node scripts/audit-frontend-dependencies.cjs
+          node - <<'NODE'
+          const report = require('./audit-results/frontend-dependency-audit.json');
+          console.log('PINNED_AUDIT', JSON.stringify({all:report.summaryAll,prod:report.summaryProduction}));
+          if (report.summaryProduction.total !== 0 || report.summaryAll.critical !== 0)
+            throw Error('Security release gate: critical or production advisory remains');
+          NODE
+          node --test tests/legacyAdapters.test.mjs
+          npm run build
+          npm run lint
+      - name: Commit only the two requested files and remove this privileged workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git rm .github/workflows/one-shot-pin-dependencies.yml
+          git diff --cached --stat
+          git diff --cached --quiet && { echo 'No dependency changes'; exit 1; }
+          git commit -m "fix(deps): pin ethers 6.17, ws 8.21 and remove obsolete flattener"
+          git push origin HEAD:audit/frontend-dependencies-ui-e2e-v1
