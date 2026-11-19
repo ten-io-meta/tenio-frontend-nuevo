@@ -44,10 +44,14 @@ async function getActiveWalletAddress() {
   try {
     const accts = await window.ethereum.request({ method: "eth_accounts" });
     if (accts && accts[0]) return accts[0];
-  } catch {}
+  } catch {
+    // Wallet may deny account enumeration.
+  }
   try {
     if (window.ethereum.selectedAddress) return window.ethereum.selectedAddress;
-  } catch {}
+  } catch {
+    // Some injected providers do not expose selectedAddress.
+  }
   return "0x????";
 }
 
@@ -97,7 +101,9 @@ export async function getHeroVideoHttp() {
     try {
       const r = await fetch(url, { method: "HEAD" });
       if (r.ok) return url;
-    } catch {}
+    } catch {
+      // Continue with the next public IPFS gateway.
+    }
   }
   // fallback al primero aunque no hayamos podido HEAD-ok
   return candidates[0];
@@ -232,14 +238,6 @@ async function postMintShowModal(receipt, contractInstance) {
       networkName: networkName,
       wallet: walletAddr
     });
-  } else if (typeof showMintSuccessModal === "function") {
-    // fallback si showMintSuccessModal está global sin window.
-    showMintSuccessModal({
-      tokenId: minedTokenId,
-      txHash: txHash,
-      networkName: networkName,
-      wallet: walletAddr
-    });
   } else {
     console.warn(
       "Mint OK pero showMintSuccessModal no está cargado todavía."
@@ -299,7 +297,7 @@ export async function withdrawSurplus(activeAddr, amountEth) {
 }
 
 // ---------- MetaMask: watch asset ----------
-export async function addToMetamask(activeAddr, tokenId, tokenUri) {
+export async function addToMetamask(activeAddr, tokenId) {
   if (!hasWindowEthereum()) throw new Error("No provider");
   const imgPath = ipfsPath(DEFAULT_IMAGE_IPFS);
   const image   = imgPath
