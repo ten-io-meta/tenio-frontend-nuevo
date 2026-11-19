@@ -18,7 +18,7 @@ jobs:
         run: npm ci
       - name: Install standalone browser test runner without changing package-lock
         run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.65.1
-      - name: Install isolated Chromium browser for EIP-1193 mock
-        run: npx playwright install --with-deps chromium
+      - name: Verify runner Chrome Stable for isolated EIP-1193 mock
+        run: google-chrome --version
       - name: Run browser scenarios with fake wallet and blocked transaction methods
         run: timeout --signal=KILL 180s node tests/controlled-umbral-ui.mjs
