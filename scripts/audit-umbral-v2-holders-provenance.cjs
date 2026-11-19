@@ -27,6 +27,8 @@ const iface = new ethers.Interface([
   "function supportsInterface(bytes4) view returns (bool)"
 ]);
 let counter=0;
+// JSON-RPC QUANTITY values must use minimal hexadecimal (no leading zeroes).
+function blockTag(n){return "0x"+n.toString(16);}
 function readable(error){return String(error && error.message || error).slice(0,160);}
 async function rpc(url,method,params,ms=13000){
   const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),ms);
@@ -95,17 +97,17 @@ async function findCreation(url,t,blockNumber) {
   while(low<high) {
     const mid=Math.floor((low+high)/2);
     let code;
-    try{code=await rpc(url,"eth_getCode",[t.address,ethers.toBeHex(mid)],13000);}
+    try{code=await rpc(url,"eth_getCode",[t.address,blockTag(mid)],13000);}
     catch(error){return{status:"UNKNOWN_ARCHIVE_UNAVAILABLE",error:readable(error),queries};}
     queries++;
     if(code && code!=="0x")high=mid;else low=mid+1;
   }
   let before;
-  try{before=low===0?"0x":await rpc(url,"eth_getCode",[t.address,ethers.toBeHex(low-1)]);}
+  try{before=low===0?"0x":await rpc(url,"eth_getCode",[t.address,blockTag(low-1)]);}
   catch(error){return{status:"UNKNOWN_PARENT_BLOCK_UNAVAILABLE",candidateBlock:low,error:readable(error),queries};}
   if(before!=="0x")return{status:"UNKNOWN_NO_CREATION_BOUNDARY",candidateBlock:low,queries};
   let block;
-  try{block=await rpc(url,"eth_getBlockByNumber",[ethers.toBeHex(low),true]);}
+  try{block=await rpc(url,"eth_getBlockByNumber",[blockTag(low),true]);}
   catch(error){return{status:"UNKNOWN_CREATION_BLOCK_UNAVAILABLE",candidateBlock:low,error:readable(error),queries};}
   if(!block?.transactions)return{status:"UNKNOWN_CREATION_BLOCK_UNAVAILABLE",candidateBlock:low,queries};
   // Direct CREATE from an EOA: reproduce deterministic address using tx sender+nonce.
@@ -140,7 +142,7 @@ async function findCreation(url,t,blockNumber) {
     }
     const candidates=nodes.filter(x=>Number.isSafeInteger(x.head));
     if(candidates.length<2){report.targets.push({chain:t.chain,address:t.address,status:"INCONCLUSIVE_FEWER_THAN_TWO_RPCS",nodes});failed=true;continue;}
-    const chosenBlock=Math.min(...candidates.map(x=>x.head))-4,tag=ethers.toBeHex(chosenBlock);
+    const chosenBlock=Math.min(...candidates.map(x=>x.head))-4,tag=blockTag(chosenBlock);
     const snapshots=[],errors=[];
     for(const n of candidates){
       if(snapshots.length>=2)break;
@@ -149,7 +151,7 @@ async function findCreation(url,t,blockNumber) {
     }
     const comparable=snapshots.map(x=>JSON.stringify(x.data));
     const matches=snapshots.length===2&&comparable[0]===comparable[1];
-    const status=matches?"TWO_RPC_FULL_HOLDER_AGREEMENT":"INCONCLUSIVE_HOLDER_DISAGREEMENT";
+    const status=matches?"TWO_RPC_FULL_HOLDER_AGREEMENT":snapshots.length<2?"INCONCLUSIVE_FEWER_SUCCESSFUL_RPCS":"INCONCLUSIVE_HOLDER_DISAGREEMENT";
     if(!matches)failed=true;
     const creation=snapshots.length?await findCreation(snapshots[0].url,t,chosenBlock):{status:"UNKNOWN_NO_SNAPSHOT"};
     report.targets.push({chain:t.chain,chainId:t.chainId,address:t.address,status,
