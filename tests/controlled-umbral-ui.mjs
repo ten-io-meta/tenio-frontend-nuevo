@@ -71,9 +71,9 @@ function reply(state,method,params,runtime) {
       MAX_SUPPLY:1000n,requiredReserve:parseEther("0.07"),
       surplus:parseEther(state.mode==="insolvent"?"0":"0.016"),
     };
-    if(name==="balanceOf") values.balanceOf=state.accounts.length?2n:0n;
-    if(name==="tokenOfOwnerByIndex") values.tokenOfOwnerByIndex=Number(call.args[1])===0?2n:3n;
-    if(name==="ownerOf") values.ownerOf=holder;
+    if(name==="balanceOf") values.balanceOf=state.accounts.length?(state.accounts[0].toLowerCase()===other.toLowerCase()?1n:2n):0n;
+    if(name==="tokenOfOwnerByIndex") values.tokenOfOwnerByIndex=state.accounts[0]?.toLowerCase()===other.toLowerCase()?8n:(Number(call.args[1])===0?2n:3n);
+    if(name==="ownerOf") values.ownerOf=state.accounts[0]||holder;
     if(name==="tokenURI")values.tokenURI="ipfs://mock/test.json";
     if(!(name in values))throw new Error("Unrecognized read: "+name);
     return iface.encodeFunctionResult(call.fragment,[values[name]]);
@@ -168,7 +168,7 @@ try {
   await runCase("RPC_DOWN_NO_FAKE_ZERO",async()=>{
     const state=scenario({mode:"offline"});
     const page=await preparePage(browser,state,runtime);
-    await page.locator(".warn").first().waitFor({timeout:12000});
+    await waitText(page,"No se pudo consultar la blockchain");
     assert.match(await page.locator(".stats").innerText(),/—/);
     await assertControlsOff(page);
     assert.equal(state.switches,0);assert.equal(state.writes,0);
@@ -188,7 +188,8 @@ try {
     assert.equal(await page.getByText("UMBRAL V2 HISTÓRICO", {exact:false}).count(),1);
     assert.equal(await page.locator(".addr").innerText(),contract);
     assert.equal(await page.locator(".owner").count(),0);
-    assert.equal(await page.getByRole("button",{name:/mintear fragmento/i}).isEnabled(),true);
+    await waitText(page,"PREVIEW · SOLO LECTURA");
+    await assertControlsOff(page);
     assert.equal(state.switches,0);assert.equal(state.writes,0);
     await page.screenshot({path:"audit-results/browser/verified-historical-nfts.png",fullPage:true});
 
@@ -197,6 +198,20 @@ try {
     await waitText(page,"Conectado: No conectado");
     assert.equal((await page.locator(".owned").innerText()).includes("No tienes fragmentos"),false);
     await assertControlsOff(page);
+    await page.close();
+  });
+
+  await runCase("OWNER_PANEL_PREVIEW_FINANCIAL_WRITES_DISABLED",async()=>{
+    const state=scenario({accounts:[other]});
+    const page=await preparePage(browser,state,runtime);
+    await waitText(page,"Tus fragmentos (1)");
+    await waitText(page,"Panel de Owner");
+    const panel=page.locator(".owner");
+    assert.equal(await panel.count(),1);
+    assert.equal(await panel.getByRole("button",{name:/Retirar excedente/}).isDisabled(),true);
+    assert.equal(await panel.getByRole("button",{name:/Retirar parcial/}).isDisabled(),true);
+    await assertControlsOff(page);
+    assert.equal(state.writes,0);
     await page.close();
   });
 
@@ -220,7 +235,7 @@ try {
     await page.close();
   });
 
-  console.log("CONTROLLED_UI_SUMMARY 7 scenarios, 0 onchain writes, mock EIP-1193 in local Chromium");
+  console.log("CONTROLLED_UI_SUMMARY 8 scenarios, 0 onchain writes, mock EIP-1193 in local Chromium");
 } catch(error) {
   console.error("CONTROLLED_UI_FAILURE "+(error.stack||String(error)));
   process.exitCode=1;
