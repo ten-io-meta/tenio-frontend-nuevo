@@ -23,3 +23,26 @@
 5. Treat approval of this audit PR as distinct from deploying a new contract or changing a live mint interface.
 
 **Limits:** bounded code and ABI review, not an independent full security audit or proof of historic token losses.
+
+## Read-only onchain evidence (2026-11-19)
+
+[GitHub Actions 44567371617](https://github.com/ten-io-meta/tenio-frontend-nuevo/actions/runs/44567371617) SUCCESS: both networks observed by two public RPC providers at fixed block heights, with matching deployed bytecode hashes and critical reserves. The exact JSON replies are saved as a GitHub Actions artifact.
+
+| Field | Mainnet at 26,450,345 | Sepolia at 12,169,588 |
+|---|---|---|
+| Configured address | 0x841c6a8e1858fd7daf25824e4d305ff06bd7a525 | 0x47C049d0441dae4D06fd7E8d512e4E91B7E92e77 |
+| Runtime codehash | 0x4ea55e352e81d0a52669ec97cc6d7ab871315cf54c0060ba615b30e932d0f74f | SAME |
+| Ownable owner() | 0x75DA787FDA32092079dbe113c5c9DBC22CBBC455 | SAME |
+| MINT_PRICE | 0.012 ETH | 0.012 test ETH |
+| BURN_REFUND | 0.010 ETH | 0.010 test ETH |
+| MAX_SUPPLY | 1,000 | 1,000 |
+| totalSupply live | **7** | **7** |
+| mintedEver | 11 | 26 |
+| Required reserve | 0.070 ETH | 0.070 test ETH |
+| Balance | 0.086 ETH | 0.076 test ETH |
+| Computed withdrawable surplus (self-reported) | 0.016 ETH | 0.006 test ETH |
+| supportsInterface strict ERC8060 | **false** | **false** |
+
+Those snapshots are **not an audit of historical transfers, a code-to-source compiler identity proof, or evidence of universal safety**. Mainnet and Sepolia share the same executable runtime hash but retain independent balances, mints and owners. Positive solvency margin is a snapshot and the legacy owner can withdraw its computed surplus; it is **not the ownerless immutable new-product model**.
+
+The deployed contract needs a second-stage reproducible compilation/constructor verification against UmbralFragmentV2_flat.sol before claiming full source provenance. No Mainnet mint/burn/withdrawal was invoked by this survey.
