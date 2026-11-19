@@ -1,0 +1,27 @@
+name: Legacy V2 fail-closed adapter regression
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Run no-network safety regression tests
+        run: node --test tests/legacyAdapters.test.mjs
+      - name: Build production frontend bundle
+        run: npm run build
+      - name: Check frontend lint diagnostics
+        run: npm run lint
