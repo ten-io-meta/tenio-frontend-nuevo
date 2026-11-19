@@ -1,3 +1,4 @@
+import { explainChainReadError } from "../src/web3/explainChainReadError.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -94,4 +95,19 @@ test("regression: financial and holder read paths contain no catch-to-zero", () 
   assert.equal(/\.catch\(\(\)\s*=>\s*0n?\)/.test(connection), false);
   assert.equal(/getStats[\s\S]*countMintsViaEvents/.test(connection), false);
   assert.equal(/return ADDR_SEPOLIA;\s*\n}/.test(connection), false);
+});
+
+test("RPC exceptions never leak raw transaction JSON into the visible message", () => {
+  const payload = '{"error":{"code":-32005,"message":"Simulated RPC unavailable"},"params":["eth_getCode"]}';
+  const message = explainChainReadError(new Error("could not coalesce error "+payload));
+  assert.match(message, /Datos no disponibles/);
+  assert.equal(message.includes("eth_getCode"), false);
+  assert.equal(message.includes("error"), false);
+});
+
+test("inconsistent reserves and wrong runtime have actionable and distinct messages", () => {
+  assert.match(explainChainReadError(new Error("insufficient reserve")), /Reserva insuficiente/);
+  assert.match(explainChainReadError(new Error("runtime unverified")), /código del contrato/);
+  assert.match(explainChainReadError(new Error("wrong wallet network"), "en"), /Wrong wallet network/);
+  assert.match(explainChainReadError(new Error("unknown"), "es", true), /titularidad|qué NFT/);
 });
