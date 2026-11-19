@@ -35,6 +35,9 @@ function sha(x){return crypto.createHash("sha256").update(x).digest("hex");}
    rpc("eth_chainId",[]),rpc("eth_getTransactionByHash",[txHash]),rpc("eth_getTransactionReceipt",[txHash])
  ]);
  if(Number(BigInt(chainId))!==11155111)throw Error("Wrong chain");
+ console.log("SEPOLIA_CREATE_RPC_FIELDS "+JSON.stringify({hasTransaction:!!tx,transactionTo:tx?.to,
+   transactionHash:tx?.hash,hasReceipt:!!receipt,receiptContract:receipt?.contractAddress,
+   receiptBlock:receipt?.blockNumber,expected:address}));
  if(!tx||tx.to!==null||!receipt||receipt.contractAddress?.toLowerCase()!==address.toLowerCase())
    throw Error("Direct creation receipt is NOT confirmed");
  const original=tx.input?.slice(2).toLowerCase();
