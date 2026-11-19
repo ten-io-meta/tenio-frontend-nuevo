@@ -78,6 +78,19 @@ export async function readLegacyStats(contract, provider, address) {
     contract.surplus(opts),
     provider.getBalance(target.address, blockTag),
   ]);
+  return validateLegacySnapshot({
+    address: target.address,
+    chainId: Number(target.chainId),
+    blockNumber: blockTag,
+    liveRaw, mintedRaw, nextRaw, priceRaw, refundRaw, maxRaw,
+    requiredRaw, surplusRaw, balanceRaw,
+  });
+}
+
+export function validateLegacySnapshot({
+  address, chainId, blockNumber, liveRaw, mintedRaw, nextRaw,
+  priceRaw, refundRaw, maxRaw, requiredRaw, surplusRaw, balanceRaw,
+}) {
   const live = safeCount(liveRaw, "live supply");
   const minted = safeCount(mintedRaw, "minted history");
   const nextId = safeCount(nextRaw, "next token ID");
@@ -98,9 +111,9 @@ export async function readLegacyStats(contract, provider, address) {
   }
   return {
     kind: "legacy-umbral-v2",
-    address: target.address,
-    chainId: Number(target.chainId),
-    blockNumber: blockTag,
+    address,
+    chainId,
+    blockNumber,
     maxSupply: cap,
     mintedHistoric: minted,
     supplyLive: live,
