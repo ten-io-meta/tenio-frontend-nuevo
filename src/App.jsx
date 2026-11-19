@@ -259,7 +259,7 @@ export default function App() {
 
       if (!account) {
         if (alive) {
-          setOwned([]);
+          setOwned(null); // no connected holder => not a verified empty list
           setOwnedError("");
         }
       } else {
@@ -424,7 +424,7 @@ export default function App() {
 
   const handleBurn = async () => {
     const id = Number(burnId);
-    if (!Number.isSafeInteger(id) || id <= 0 || !stats || statsError) return;
+    if (!Number.isSafeInteger(id) || id <= 0 || !stats || statsError || owned === null || ownedError) return;
 
     setBurning(true);
 
@@ -578,7 +578,7 @@ export default function App() {
               <b>{tr.burnRefund}:</b> {stats?.burnRefund ?? "—"} ETH
             </div>
 
-            {isOwner && stats && !statsError && (
+            {isOwner && stats && !statsError && owned !== null && !ownedError && (
               <div>
                 <b>{tr.withdrawable}:</b>{" "}
                 {stats ? stats.withdrawableEth.toFixed(3) : "—"} ETH
@@ -590,7 +590,7 @@ export default function App() {
           </div>
 
           <div className="row">
-            <button onClick={handleMint} disabled={minting || !connected || !stats || !!statsError}>
+            <button onClick={handleMint} disabled={minting || !connected || !stats || !!statsError || owned === null || !!ownedError}>
               {minting ? tr.minting : tr.mintAction(nextMintNumber ?? "—")}
             </button>
           </div>
@@ -601,7 +601,7 @@ export default function App() {
               value={burnId}
               onChange={(e) => setBurnId(e.target.value)}
             />
-            <button onClick={handleBurn} disabled={burning || !connected || !stats || !!statsError}>
+            <button onClick={handleBurn} disabled={burning || !connected || !stats || !!statsError || owned === null || !!ownedError}>
               {burning ? tr.burning : tr.burnBtn}
             </button>
           </div>
@@ -612,7 +612,7 @@ export default function App() {
 
           <div className="owned">
             <div>
-              <b>{owned === null ? "Tus fragmentos: no verificables" : tr.yourFrags(owned.length)}</b>
+              <b>{owned === null ? (account ? "Tus fragmentos: no verificables" : tr.connectedNo) : tr.yourFrags(owned.length)}</b>
             </div>
             {owned !== null && owned.length === 0 ? (
               <div className="muted">{tr.noFrags}</div>
