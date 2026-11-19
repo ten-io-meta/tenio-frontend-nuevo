@@ -4,6 +4,7 @@
 
 import { BrowserProvider, Contract, parseEther } from "ethers";
 import { legacyDeploymentForAddress, verifyLegacyReader, readLegacyStats, readLegacyOwned } from "./legacyUmbralV2.js";
+import { assertFinancialWritesEnabled } from "./deploymentMode.js";
 import ABI from "./UmbralFragment.json";
 
 // ---------- ENV ----------
@@ -189,6 +190,7 @@ export async function getReadContract(activeAddr, expectedNet = null) {
 }
 
 export async function getWriteContract(activeAddr, explicitExpected = null) {
+  assertFinancialWritesEnabled(); // before any chain switch, signer or RPC action
   const verifiedAddress = requireAddress(activeAddr);
   if (!hasWindowEthereum()) throw new Error("No Ethereum provider available");
   const inferred = inferExpectedNetworkFromAddress(verifiedAddress);
