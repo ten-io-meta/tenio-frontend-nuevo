@@ -6,7 +6,7 @@ import MusicArchive from "./MusicArchive.jsx";
 import FragmentPage from "./FragmentPage.jsx";
 import "./App.css";
 
-function Root() {
+export function Root() {
   const [hash, setHash] = useState(window.location.hash);
 
   useEffect(() => {
