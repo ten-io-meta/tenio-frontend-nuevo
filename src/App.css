@@ -183,3 +183,6 @@ input { min-width: 180px; }
   background: rgba(35, 45, 80, 0.95);
   border-color: rgba(150, 170, 255, 0.75);
 }
+/* Read failure disables financial actions; do not make disabled buttons look actionable. */
+button:disabled { opacity: .44; cursor: not-allowed; }
+button:disabled:hover { border-color: #2a2a2a; }
