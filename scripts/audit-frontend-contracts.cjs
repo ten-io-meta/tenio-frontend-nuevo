@@ -5,7 +5,7 @@ const fs=require("node:fs"), path=require("node:path"), {ethers}=require("ethers
 const env=Object.fromEntries(fs.readFileSync(".env","utf8").split(/\r?\n/).filter(x=>/^\s*VITE_[A-Z_0-9]+\s*=/.test(x)).map(x=>{const i=x.indexOf("=");return[x.slice(0,i).trim(),x.slice(i+1).trim().replace(/^["']|["']$/g,"")]}));
 const sources=[
  {name:"frontend-mainnet",chainId:1,address:env.VITE_CONTRACT_MAINNET,rpcs:["https://ethereum-rpc.publicnode.com","https://eth.drpc.org"]},
- {name:"frontend-sepolia",chainId:11155111,address:env.VITE_CONTRACT_SEPOLIA,rpcs:["https://ethereum-sepolia-rpc.publicnode.com","https://1rpc.io/sepolia"]}
+ {name:"frontend-sepolia",chainId:11155111,address:env.VITE_CONTRACT_SEPOLIA,rpcs:["https://ethereum-sepolia-rpc.publicnode.com","https://sepolia.gateway.tenderly.co","https://1rpc.io/sepolia","https://rpc.ankr.com/eth_sepolia","https://sepolia.drpc.org"]}
 ];
 const iface=new ethers.Interface([
 "function supportsInterface(bytes4) view returns (bool)",
@@ -72,10 +72,10 @@ async function inspect(url,t,block){
    }catch(e){nodes.push({url,error:err(e)});}
   }
   const live=nodes.filter(x=>Number.isInteger(x.head));
-  if(live.length<2){results.targets.push({name:t.name,address:t.address,status:"INCONCLUSIVE_RPC_AVAILABILITY",nodes});failed=true;continue;}
+  if(live.length===0){results.targets.push({name:t.name,address:t.address,status:"NO_RPC_AVAILABLE",nodes});failed=true;continue;}
   const blockNo=Math.min(...live.map(x=>x.head))-3,tag="0x"+blockNo.toString(16);
   const checks=[];
-  for(const n of live){
+  for(const n of live.slice(0,2)){
    try{
     const snap=await inspect(n.url,t,tag);
     checks.push({endpoint:n.url,snapshot:snap});
@@ -90,7 +90,7 @@ async function inspect(url,t,block){
   }
   const status=v.length===2&&!disagreements.length?"TWO_RPC_CRITICAL_AGREE":"INCONCLUSIVE";
   if(status!=="TWO_RPC_CRITICAL_AGREE")failed=true;
-  const rec={name:t.name,chainId:t.chainId,address:t.address,block:blockNo,status,disagreements,checks};
+  const rec={name:t.name,chainId:t.chainId,address:t.address,block:blockNo,status,disagreements,checks,rpcDiscovery:nodes};
   results.targets.push(rec);
   const first=v[0]?.snapshot;
   console.log("FRONTEND_CONTRACT_RESULT "+JSON.stringify({name:t.name,address:t.address,block: blockNo,status,
