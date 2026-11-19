@@ -66,6 +66,38 @@ function sha(x){return crypto.createHash("sha256").update(x).digest("hex");}
   console.log("CHAIN "+t.chain+" "+JSON.stringify({twoRPCsAgree:agrees,bytes:last.bytes,codehash:last.codehash,solcCBOR:last.solcCBOR}));
   if(!agrees)failed=true;
  }
+ // Decode the metadata hash embedded in the deployed bytecode.
+// These are PUBLIC CBOR bytes. Metadata retrieval may be unavailable if nobody pinned it.
+function toBase58(bytes){
+ const alphabet="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+ let n=BigInt("0x"+bytes.toString("hex")),out="";
+ while(n>0n){out=alphabet[Number(n%58n)]+out;n/=58n;}
+ for(const x of bytes){if(x===0)out="1"+out;else break;}return out;
+}
+async function fetchMetadata(cid){
+ for(const gateway of ["https://ipfs.io/ipfs/","https://dweb.link/ipfs/","https://gateway.pinata.cloud/ipfs/"]){
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),6500);
+  try{
+   const response=await fetch(gateway+cid,{signal:ctrl.signal});
+   if(!response.ok)continue;
+   const body=await response.json();
+   if(body?.compiler?.version&&body?.settings?.compilationTarget)return{source:gateway+cid,data:body};
+  }catch(_){}
+  finally{clearTimeout(timer);}
+ }
+ return null;
+}
+const original=stripCBOR(observations[0].runtime);
+const hash=original.metadata.match(/697066735822(1220[0-9a-f]{64})/);
+const cid=hash?toBase58(Buffer.from(hash[1],"hex")):null;
+console.log("DEPLOYED_METADATA_CID "+JSON.stringify({cid,solcCBOR:observations[0].solcCBOR}));
+const originalMetadata=cid?await fetchMetadata(cid):null;
+const metadataLookup={cid,available:!!originalMetadata,url:originalMetadata?.source||null,
+ originalCompiler:originalMetadata?.data?.compiler?.version||null,
+ originalSettings:originalMetadata?.data?.settings||null,
+ originalSourcePaths:Object.keys(originalMetadata?.data?.sources||{})};
+if(originalMetadata)console.log("ORIGINAL_SOLC_METADATA "+JSON.stringify(metadataLookup));
+
  const compiler=solc.version(),attempts=[];
  console.log("LOCAL_SOLC "+compiler);
  for(const optimizer of [false,true])
@@ -84,7 +116,7 @@ function sha(x){return crypto.createHash("sha256").update(x).digest("hex");}
   if(comparison.some(x=>x.exact||x.executableMatch))console.log("MATCH_CANDIDATE "+JSON.stringify(item));
  }
  const report={schema:"UMBRAL_V2_DEPLOYED_SOURCE_REPRODUCTION",timestamp:new Date().toISOString(),
- sourceFile,sourceSHA256:sha(source),compiler,
+ sourceFile,sourceSHA256:sha(source),compiler,metadataLookup,
  observations:observations.map(({runtime,...x})=>x),attempts,
  caveat:"Executable match without full Solidity CBOR match is NOT full byte-for-byte identity. Constructor initialization, source-path provenance and access control must also be verified."};
  fs.mkdirSync("audit-results",{recursive:true});
