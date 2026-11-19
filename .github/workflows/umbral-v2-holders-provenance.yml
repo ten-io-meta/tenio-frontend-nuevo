@@ -1,0 +1,30 @@
+name: Verify Umbral V2 holder rights and creation (read-only)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  holder-and-creation-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Query two independent public RPCs; verify per-NFT holders and reserves
+        run: node scripts/audit-umbral-v2-holders-provenance.cjs
+      - name: Preserve evidence even if RPC availability is inconclusive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbral-v2-holders-provenance
+          path: audit-results/umbral-v2-holders-provenance.json
+          if-no-files-found: warn
