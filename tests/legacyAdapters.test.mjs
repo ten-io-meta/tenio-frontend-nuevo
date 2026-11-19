@@ -133,5 +133,5 @@ test("Preview and unknown deployment builds are read-only even if the UI button 
   const adapterSource = readFileSync("src/web3/TENIOFragmentConnection.js", "utf8");
   const configSource = readFileSync("vite.config.js", "utf8");
   assert.match(adapterSource, /getWriteContract[\s\S]*?assertFinancialWritesEnabled\(\)/);
-  assert.match(configSource, /process\.env\.VERCEL_ENV !== 'production'/);
+  assert.match(configSource, /env\.VERCEL_ENV !== 'production'/);
 });
